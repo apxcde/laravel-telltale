@@ -36,7 +36,7 @@ it('fails when no flare key is set', function () {
     setupFlare(withoutApiKey: true);
 
     $this->artisan('telltale:test')
-        ->expectsOutputToContain('Flare key not specified')
+        ->expectsOutputToContain('Telltale key not specified')
         ->assertFailed();
 });
 
@@ -79,7 +79,7 @@ it('dumps the logging and flare configuration when running with -vvv', function 
     config()->set('logging.default', 'telltale');
 
     $this->artisan('telltale:test --logs -vvv')
-        ->expectsOutputToContain('Flare config')
+        ->expectsOutputToContain('Telltale config')
         ->expectsOutputToContain('telltale.php config')
         ->expectsOutputToContain('logging.php config')
         ->expectsOutputToContain('<redacted>');
@@ -117,5 +117,15 @@ it('finds the error callback when the app registered another reportable callback
 
     $this->artisan('telltale:test --errors')
         ->doesntExpectOutputToContain('error callback was not configured')
+        ->assertOk();
+});
+
+it('names Telltale and leaves out Flare\'s own help', function () {
+    setupFlare();
+
+    $this->artisan('telltale:test --errors')
+        ->expectsOutputToContain('Telltale key specified')
+        ->expectsOutputToContain('Error sent to Telltale')
+        ->doesntExpectOutputToContain('Flare')
         ->assertOk();
 });
