@@ -23,7 +23,11 @@ use Spatie\FlareClient\Contracts\Recorders\Recorder;
 use Spatie\FlareClient\Enums\FlareMode;
 use Spatie\FlareClient\Enums\SpanType;
 use Spatie\FlareClient\Flare;
+use Apxcde\LaravelTelltale\EntryPoint\CensoringEntryPointResolver;
+use Apxcde\LaravelTelltale\Support\UrlCensor;
+use Spatie\FlareClient\EntryPoint\EntryPointResolver;
 use Spatie\FlareClient\FlareProvider;
+use Spatie\FlareClient\Support\Redactor;
 use Spatie\FlareClient\Logger as FlareLogger;
 use Spatie\FlareClient\Resources\Resource;
 use Spatie\FlareClient\Scopes\Scope;
@@ -152,6 +156,10 @@ class TelltaleServiceProvider extends ServiceProvider
         $this->registerLogHandler();
 
         $this->provider->register();
+
+        $this->app->singleton(EntryPointResolver::class, fn () => new CensoringEntryPointResolver(
+            new UrlCensor($this->app->make(Redactor::class)),
+        ));
 
         $this->app->singleton(LivewireComponentFinder::class);
         $this->app->singleton(LivewireSingleFileComponentFrameMapper::class);

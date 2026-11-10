@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Spatie\FlareClient\Contracts\AttributesProvider;
 use Apxcde\LaravelTelltale\Support\LivewireComponentFinder;
+use Apxcde\LaravelTelltale\Support\UrlCensor;
 
 class LivewireAttributesProvider implements AttributesProvider
 {
@@ -15,6 +16,7 @@ class LivewireAttributesProvider implements AttributesProvider
         protected LivewireComponentFinder $livewireComponentFinder,
         protected Request $request,
         protected array $ignoreLivewireComponents = [],
+        protected ?UrlCensor $urlCensor = null,
     ) {
     }
 
@@ -22,6 +24,10 @@ class LivewireAttributesProvider implements AttributesProvider
     {
         $manager = $this->livewireComponentFinder->manager();
         $originalUrl = $manager?->originalUrl();
+
+        if ($originalUrl !== null && $this->urlCensor !== null) {
+            $originalUrl = $this->urlCensor->url($originalUrl);
+        }
 
         return [
             'http.request.method' => $manager?->originalMethod(),

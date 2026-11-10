@@ -22,6 +22,7 @@ This package is a fork of [`spatie/laravel-flare`](https://github.com/spatie/lar
   ```
 
   A value the database quotes in its own error text, such as the duplicate value in a unique key violation, is still part of the message.
+- **Query strings are censored.** The `censor.body_fields` list also applies to query string parameters in URLs: the request's URL and entry point, the `Referer` header, and the URLs of outgoing HTTP requests. With `phone` in the list, `/search?phone=...` is sent as `/search?phone=<CENSORED:string>`. Values in the path of a URL (`/contacts/+15551234567`) are not censored.
 
 The wire protocol is unchanged. The package still depends on [`spatie/flare-client-php`](https://github.com/spatie/flare-client-php), which builds and sends the payloads, so its classes keep the `Spatie\FlareClient` namespace and the payloads keep Flare's attribute names (for example `flare.entry_point.type`).
 

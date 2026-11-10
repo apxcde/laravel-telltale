@@ -8,7 +8,9 @@ use Livewire\Component;
 use Livewire\EventBus;
 use Livewire\LivewireManager;
 use Spatie\Backtrace\Arguments\ReduceArgumentPayloadAction;
+use Apxcde\LaravelTelltale\Support\UrlCensor;
 use Spatie\FlareClient\EntryPoint\EntryPointResolver;
+use Spatie\FlareClient\Support\Redactor;
 use Spatie\FlareClient\Enums\RecorderType;
 use Spatie\FlareClient\Recorders\SpansRecorder;
 use Spatie\FlareClient\Support\BackTracer;
@@ -411,7 +413,7 @@ class LivewireRecorder extends SpansRecorder
             $url = $this->livewireManager->originalUrl();
             $method = strtoupper($this->livewireManager->originalMethod());
 
-            $entryPoint->updateValue($url);
+            $entryPoint->updateValue((new UrlCensor(app(Redactor::class)))->url($url));
 
             $entryPoint->setHandler(
                 handlerIdentifier: $method.' '.(parse_url($url, PHP_URL_PATH) ?: '/'),
