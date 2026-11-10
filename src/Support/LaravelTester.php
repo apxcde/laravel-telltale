@@ -20,9 +20,12 @@ use Spatie\FlareClient\FlareConfig;
 use Spatie\FlareClient\Memory\Memory;
 use Spatie\FlareClient\ReportFactory;
 use Spatie\FlareClient\Resources\Resource;
+use Spatie\FlareClient\Senders\DaemonSender;
 use Spatie\FlareClient\Support\Ids;
 use Spatie\FlareClient\Support\SymfonyTester;
 use Spatie\FlareClient\Time\Time;
+use Exception;
+use Throwable;
 use Apxcde\LaravelTelltale\Commands\TestCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -64,6 +67,64 @@ class LaravelTester extends SymfonyTester
         }
 
         return parent::runTests();
+    }
+
+    /**
+     * The core client words every line for Flare, and after a failed send
+     * points to Flare's subscription, docs, status page and support. Here
+     * the lines name Telltale and the Flare-only help is left out.
+     */
+    protected function writeLine(string $message, string $style = self::STYLE_PLAIN): void
+    {
+        if (str_contains($message, 'flareapp.io')) {
+            return;
+        }
+
+        $message = str_replace(
+            'Make sure that your key is correct and that you have a valid subscription.',
+            'Make sure that your key and `TELLTALE_BASE_URL` are correct.',
+            $message,
+        );
+
+        parent::writeLine($this->namesTelltale($message), $style);
+    }
+
+    /**
+     * Telltale has no daemon, so the core client's advice to send logs
+     * through the Flare daemon is skipped.
+     */
+    protected function warnAboutEntity(FlareEntityType $type): void
+    {
+        if ($type === FlareEntityType::Logs && $this->config->sender !== DaemonSender::class) {
+            return;
+        }
+
+        parent::warnAboutEntity($type);
+    }
+
+    protected function buildThrowable(): Throwable
+    {
+        return new Exception('This is an exception to test if the integration with Telltale works.');
+    }
+
+    protected function buildLog(): array
+    {
+        return array_map(function (array $log): array {
+            if (is_string($log['body'] ?? null)) {
+                $log['body'] = $this->namesTelltale($log['body']);
+            }
+
+            return $log;
+        }, parent::buildLog());
+    }
+
+    /**
+     * Replace the product name, leaving class names such as
+     * `Spatie\FlareClient\Flare` and the `spatie/flare-client-php` package alone.
+     */
+    protected function namesTelltale(string $text): string
+    {
+        return (string) preg_replace('/(?<![\\\\\w])Flare(?!\w)/', 'Telltale', $text);
     }
 
     /** @return array<string, mixed> */
