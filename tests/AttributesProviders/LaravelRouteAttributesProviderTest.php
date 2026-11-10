@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Spatie\LaravelFlare\AttributesProviders\LaravelRouteAttributesProvider;
+use Apxcde\LaravelTelltale\AttributesProviders\LaravelRouteAttributesProvider;
 
 it('returns the route name', function () {
     $route = Route::get('/route/', fn () => null)->name('routeName');

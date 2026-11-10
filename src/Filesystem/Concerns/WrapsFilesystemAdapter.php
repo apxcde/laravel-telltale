@@ -1,11 +1,11 @@
 <?php
 
-namespace Spatie\LaravelFlare\Filesystem\Concerns;
+namespace Apxcde\LaravelTelltale\Filesystem\Concerns;
 
 use League\Flysystem\UnableToProvideChecksum;
 use Spatie\FlareClient\Support\Humanizer;
-use Spatie\LaravelFlare\Enums\LaravelFilesystemOperation;
-use Spatie\LaravelFlare\Recorders\FilesystemRecorder\FilesystemRecorder;
+use Apxcde\LaravelTelltale\Enums\LaravelFilesystemOperation;
+use Apxcde\LaravelTelltale\Recorders\FilesystemRecorder\FilesystemRecorder;
 
 trait WrapsFilesystemAdapter
 {

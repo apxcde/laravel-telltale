@@ -19,76 +19,10 @@ parameters:
 			path: src/Exceptions/InvalidConfig.php
 
 		-
-			message: '#^Parameter \$applicationStage of class Spatie\\LaravelFlare\\FlareConfig constructor expects string\|null, bool\|string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/FlareConfig.php
-
-		-
 			message: '#^Call to an undefined method Spatie\\FlareClient\\Support\\BackTracer\:\:framesWithoutViewMapping\(\)\.$#'
 			identifier: method.notFound
 			count: 1
 			path: src/FlareMiddleware/AddExceptionHandledStatus.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Contracts\\Foundation\\Application\:\:runningConsoleCommand\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/FlareServiceProvider.php
-
-		-
-			message: '#^Class Laravel\\Octane\\Events\\RequestReceived not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: src/FlareServiceProvider.php
-
-		-
-			message: '#^Class Laravel\\Octane\\Events\\RequestTerminated not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: src/FlareServiceProvider.php
-
-		-
-			message: '#^Class Laravel\\Octane\\Events\\TaskReceived not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: src/FlareServiceProvider.php
-
-		-
-			message: '#^Class Laravel\\Octane\\Events\\TickReceived not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: src/FlareServiceProvider.php
-
-		-
-			message: '#^Parameter \$registerRecorderAndMiddlewaresCallback of class Spatie\\FlareClient\\FlareProvider constructor expects \(Closure\(Illuminate\\Contracts\\Container\\Container\|Spatie\\FlareClient\\Support\\Container, class\-string\<Spatie\\FlareClient\\Contracts\\Recorders\\Recorder\>, array\)\: void\)\|null, \(Closure\(Spatie\\FlareClient\\Support\\Container\|Spatie\\LaravelFlare\\IlluminateContainer, class\-string\<Spatie\\FlareClient\\Contracts\\Recorders\\Recorder\>, array\)\: void\)\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/FlareServiceProvider.php
-
-		-
-			message: '#^Parameter \$registerRecorderAndMiddlewaresCallback of method Spatie\\LaravelFlare\\FlareServiceProvider\:\:__construct\(\) has invalid type Spatie\\LaravelFlare\\IlluminateContainer\.$#'
-			identifier: class.notFound
-			count: 1
-			path: src/FlareServiceProvider.php
-
-		-
-			message: '#^Parameter \$traceparent of method Spatie\\FlareClient\\Support\\Lifecycle\:\:start\(\) expects string\|null, array\|string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/FlareServiceProvider.php
-
-		-
-			message: '#^Property Spatie\\LaravelFlare\\FlareServiceProvider\:\:\$registerRecorderAndMiddlewaresCallback \(\(Closure\(Spatie\\FlareClient\\Support\\Container\|Spatie\\LaravelFlare\\IlluminateContainer, class\-string\<Spatie\\FlareClient\\Contracts\\Recorders\\Recorder\>, array\)\: void\)\|null\) does not accept \(Closure\(Illuminate\\Contracts\\Container\\Container, string, array\)\: void\)\|\(Closure\(Spatie\\FlareClient\\Support\\Container\|Spatie\\LaravelFlare\\IlluminateContainer, class\-string\<Spatie\\FlareClient\\Contracts\\Recorders\\Recorder\>, array\)\: void\)\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: src/FlareServiceProvider.php
-
-		-
-			message: '#^Property Spatie\\LaravelFlare\\FlareServiceProvider\:\:\$registerRecorderAndMiddlewaresCallback has unknown class Spatie\\LaravelFlare\\IlluminateContainer as its type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: src/FlareServiceProvider.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between string and null will always evaluate to false\.$#'
@@ -121,10 +55,76 @@ parameters:
 			path: src/Support/LivewireComponentFinder.php
 
 		-
-			message: '#^Property Spatie\\LaravelFlare\\Support\\LivewireComponentFinder\:\:\$componentRegistry has unknown class Livewire\\Mechanisms\\ComponentRegistry as its type\.$#'
+			message: '#^Property Apxcde\\LaravelTelltale\\Support\\LivewireComponentFinder\:\:\$componentRegistry has unknown class Livewire\\Mechanisms\\ComponentRegistry as its type\.$#'
 			identifier: class.notFound
 			count: 1
 			path: src/Support/LivewireComponentFinder.php
+
+		-
+			message: '#^Parameter \$applicationStage of class Apxcde\\LaravelTelltale\\TelltaleConfig constructor expects string\|null, bool\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/TelltaleConfig.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Foundation\\Application\:\:runningConsoleCommand\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/TelltaleServiceProvider.php
+
+		-
+			message: '#^Class Laravel\\Octane\\Events\\RequestReceived not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/TelltaleServiceProvider.php
+
+		-
+			message: '#^Class Laravel\\Octane\\Events\\RequestTerminated not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/TelltaleServiceProvider.php
+
+		-
+			message: '#^Class Laravel\\Octane\\Events\\TaskReceived not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/TelltaleServiceProvider.php
+
+		-
+			message: '#^Class Laravel\\Octane\\Events\\TickReceived not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/TelltaleServiceProvider.php
+
+		-
+			message: '#^Parameter \$registerRecorderAndMiddlewaresCallback of class Spatie\\FlareClient\\FlareProvider constructor expects \(Closure\(Illuminate\\Contracts\\Container\\Container\|Spatie\\FlareClient\\Support\\Container, class\-string\<Spatie\\FlareClient\\Contracts\\Recorders\\Recorder\>, array\)\: void\)\|null, \(Closure\(Apxcde\\LaravelTelltale\\IlluminateContainer\|Spatie\\FlareClient\\Support\\Container, class\-string\<Spatie\\FlareClient\\Contracts\\Recorders\\Recorder\>, array\)\: void\)\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/TelltaleServiceProvider.php
+
+		-
+			message: '#^Parameter \$registerRecorderAndMiddlewaresCallback of method Apxcde\\LaravelTelltale\\TelltaleServiceProvider\:\:__construct\(\) has invalid type Apxcde\\LaravelTelltale\\IlluminateContainer\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/TelltaleServiceProvider.php
+
+		-
+			message: '#^Parameter \$traceparent of method Spatie\\FlareClient\\Support\\Lifecycle\:\:start\(\) expects string\|null, array\|string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/TelltaleServiceProvider.php
+
+		-
+			message: '#^Property Apxcde\\LaravelTelltale\\TelltaleServiceProvider\:\:\$registerRecorderAndMiddlewaresCallback \(\(Closure\(Apxcde\\LaravelTelltale\\IlluminateContainer\|Spatie\\FlareClient\\Support\\Container, class\-string\<Spatie\\FlareClient\\Contracts\\Recorders\\Recorder\>, array\)\: void\)\|null\) does not accept \(Closure\(Apxcde\\LaravelTelltale\\IlluminateContainer\|Spatie\\FlareClient\\Support\\Container, class\-string\<Spatie\\FlareClient\\Contracts\\Recorders\\Recorder\>, array\)\: void\)\|\(Closure\(Illuminate\\Contracts\\Container\\Container, string, array\)\: void\)\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/TelltaleServiceProvider.php
+
+		-
+			message: '#^Property Apxcde\\LaravelTelltale\\TelltaleServiceProvider\:\:\$registerRecorderAndMiddlewaresCallback has unknown class Apxcde\\LaravelTelltale\\IlluminateContainer as its type\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/TelltaleServiceProvider.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Contracts\\View\\Engine\:\:getCompiler\(\)\.$#'

@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Recorders\RequestRecorder;
+namespace Apxcde\LaravelTelltale\Recorders\RequestRecorder;
 
 use Spatie\FlareClient\AttributesProviders\UserAttributesProvider;
 use Spatie\FlareClient\Contracts\RequestAttributesProvider;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Exceptions;
+namespace Apxcde\LaravelTelltale\Exceptions;
 
 use ErrorException;
 

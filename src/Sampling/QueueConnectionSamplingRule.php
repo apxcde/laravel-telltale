@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Sampling;
+namespace Apxcde\LaravelTelltale\Sampling;
 
 use InvalidArgumentException;
 use Spatie\FlareClient\EntryPoint\EntryPoint;

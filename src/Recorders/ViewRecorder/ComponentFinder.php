@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Recorders\ViewRecorder;
+namespace Apxcde\LaravelTelltale\Recorders\ViewRecorder;
 
 use Illuminate\View\DynamicComponent;
 use Throwable;

@@ -1,67 +1,108 @@
-# Laravel Flare: send Laravel errors to Flare
+# Laravel Telltale: send Laravel errors, logs and traces to Telltale
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/laravel-flare.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-flare)
-![Tests](https://github.com/spatie/laravel-flare/workflows/Run%20tests/badge.svg)
-[![Total Downloads](https://img.shields.io/packagist/dt/spatie/laravel-flare.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-flare)
+`apxcde/laravel-telltale` is the Laravel client for Telltale, a self-hosted receiver for errors, logs and performance traces. It runs inside your application and reports to your own Telltale installation.
 
-[Laravel Flare](https://flareapp.io/docs/integration/laravel-customizations/introduction) allows to publicly share your errors on [Flare](https://flareapp.io). If configured with a valid Flare API key, your errors in production applications will be tracked, and you'll get notified when they happen.
+This package is a fork of [`spatie/laravel-flare`](https://github.com/spatie/laravel-flare) by [Spatie](https://spatie.be). It is not affiliated with Spatie or [Flare](https://flareapp.io). The fork does not follow upstream releases.
 
-`spatie/laravel-flare` works for Laravel 11 and above applications running on PHP 8.2 and above. Looking for Ignition for Laravel, the most beautiful error page out there? You can still install `spatie/laravel-ignition` and admire it.
+## What differs from `spatie/laravel-flare`
 
-## Official Documentation
+- **Names.** The namespace is `Apxcde\LaravelTelltale`, the config file is `config/telltale.php`, the log driver is `telltale`, the facade is `Telltale` and the test command is `telltale:test`.
+- **Env variables** start with `TELLTALE_`: `TELLTALE_KEY`, `TELLTALE_BASE_URL`, `TELLTALE_REPORT`, `TELLTALE_TRACE`, `TELLTALE_SAMPLER_RATE` and `TELLTALE_LOG`.
+- **No default server.** Nothing is sent unless both `TELLTALE_KEY` and `TELLTALE_BASE_URL` are set. The package never falls back to flareapp.io.
+- **Tracing is off by default.** Enable it with `TELLTALE_TRACE=true`.
+- **The error page's Share button is off by default**, because it uploads the error to flareapp.io.
 
-The official documentation for Flare can be found on the [Flare website](https://flareapp.io/docs/integration/laravel-customizations/introduction).
+The wire protocol is unchanged. The package still depends on [`spatie/flare-client-php`](https://github.com/spatie/flare-client-php), which builds and sends the payloads, so its classes keep the `Spatie\FlareClient` namespace and the payloads keep Flare's attribute names (for example `flare.entry_point.type`).
 
-## Support us
+## Requirements
 
-[<img src="https://spatie.be/github-ad-image/laravel-flare.jpg" width="419px" />](https://spatie.be/github-ad-click/laravel-flare)
+PHP 8.2 or higher and Laravel 10.14 or higher. The package conflicts with `spatie/laravel-ignition`, which needs an older `spatie/flare-client-php`; remove Ignition first.
 
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
+## Installation
 
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+The package is not on Packagist. Add its repository to your `composer.json`, then require it:
 
-### Changelog
-
-Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
-
-## Testing
-
-The test suite includes integration tests that require a running workbench server. To run the full test suite locally:
+```json
+"repositories": [
+    { "type": "vcs", "url": "https://github.com/apxcde/laravel-telltale" }
+]
+```
 
 ```bash
-# Install dependencies
+composer require apxcde/laravel-telltale:dev-main
+```
+
+Set the project key and the URL of your Telltale installation in `.env`:
+
+```dotenv
+TELLTALE_KEY=your-project-key
+TELLTALE_BASE_URL=https://telltale.example.com
+```
+
+Report exceptions from `bootstrap/app.php`:
+
+```php
+use Apxcde\LaravelTelltale\Facades\Telltale;
+
+->withExceptions(function (Exceptions $exceptions) {
+    Telltale::handles($exceptions);
+})
+```
+
+To send logs, add a channel with the `telltale` driver to `config/logging.php` and include it in your stack:
+
+```php
+'telltale' => [
+    'driver' => 'telltale',
+],
+```
+
+To change the defaults, publish the config file:
+
+```bash
+php artisan vendor:publish --tag=telltale-config
+```
+
+Then check the setup. Each flag sends one test payload of that kind:
+
+```bash
+php artisan telltale:test --errors --logs --traces
+```
+
+## Keeping tests silent
+
+Set an empty key in `phpunit.xml` so your test suite never sends anything:
+
+```xml
+<env name="TELLTALE_KEY" value=""/>
+```
+
+## Testing the package
+
+The test suite includes integration tests that need a running workbench server and queue worker:
+
+```bash
 composer install
-
-# Build the workbench application
 composer run build
-
-# Start the workbench server and queue worker in the background
 vendor/bin/testbench serve &
 vendor/bin/testbench queue:work &
-
-# Wait for the workbench/storage symlink to be created, then run tests
 vendor/bin/pest
 ```
 
-To run only the unit tests (without the workbench server):
+To run only the unit tests:
 
 ```bash
 vendor/bin/pest --exclude-group=integration
 ```
 
-## Contributing
+## Changelog
 
-Please see [CONTRIBUTING](https://github.com/spatie/.github/blob/main/CONTRIBUTING.md) for details.
-
-## Security Vulnerabilities
-
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
+[CHANGELOG](CHANGELOG.md) and [UPGRADING](UPGRADING.md) record the history of `spatie/laravel-flare` up to the point of the fork, and use its names.
 
 ## Credits
 
-- [Spatie](https://spatie.be)
-- [All Contributors](../../contributors)
+- [Spatie](https://spatie.be) and [all contributors](https://github.com/spatie/laravel-flare/graphs/contributors) to `spatie/laravel-flare`, who wrote nearly all of this code.
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The MIT License (MIT). Please see the [License File](LICENSE.md) for more information.

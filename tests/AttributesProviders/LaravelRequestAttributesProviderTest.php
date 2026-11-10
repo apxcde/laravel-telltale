@@ -2,8 +2,8 @@
 
 use Illuminate\Http\Request;
 use Spatie\FlareClient\Support\Redactor;
-use Spatie\LaravelFlare\AttributesProviders\LaravelRequestAttributesProvider;
-use Spatie\LaravelFlare\Support\LivewireComponentFinder;
+use Apxcde\LaravelTelltale\AttributesProviders\LaravelRequestAttributesProvider;
+use Apxcde\LaravelTelltale\Support\LivewireComponentFinder;
 
 it('returns the url', function () {
     $request = Request::create('/route', 'GET');

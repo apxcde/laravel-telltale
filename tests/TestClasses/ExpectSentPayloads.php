@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Tests\TestClasses;
+namespace Apxcde\LaravelTelltale\Tests\TestClasses;
 
 use Exception;
 use GuzzleHttp\Exception\ConnectException;

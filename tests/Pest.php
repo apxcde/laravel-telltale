@@ -9,11 +9,11 @@ use Spatie\FlareClient\FlareMiddleware\AddJobInformation;
 use Spatie\FlareClient\Tests\Shared\FakeApi;
 use Spatie\FlareClient\Tests\Shared\FakeIds;
 use Spatie\FlareClient\Tests\Shared\FakeTime;
-use Spatie\LaravelFlare\Facades\Flare as FlareFacade;
-use Spatie\LaravelFlare\FlareConfig;
-use Spatie\LaravelFlare\FlareServiceProvider;
-use Spatie\LaravelFlare\Support\CollectsResolver;
-use Spatie\LaravelFlare\Tests\TestCase;
+use Apxcde\LaravelTelltale\Facades\Telltale as FlareFacade;
+use Apxcde\LaravelTelltale\TelltaleConfig;
+use Apxcde\LaravelTelltale\TelltaleServiceProvider;
+use Apxcde\LaravelTelltale\Support\CollectsResolver;
+use Apxcde\LaravelTelltale\Tests\TestCase;
 
 uses(TestCase::class)->beforeEach(function () {
     FakeIds::reset();
@@ -28,7 +28,7 @@ if (file_exists(__DIR__.'/../.env')) {
 }
 
 /**
- * @param ?Closure(FlareConfig):void $closure
+ * @param ?Closure(TelltaleConfig):void $closure
  */
 function setupFlare(
     ?Closure $closure = null,
@@ -36,7 +36,7 @@ function setupFlare(
     bool $alwaysSampleTraces = false,
     bool $isUsingSubtasks = false,
 ): Flare {
-    $config = new FlareConfig(
+    $config = new TelltaleConfig(
         apiToken: $withoutApiKey ? null : 'fake-api-key',
         collectsResolver: CollectsResolver::class,
     );
@@ -65,9 +65,9 @@ function setupFlare(
         $closure($config);
     }
 
-    app()->singleton(FlareConfig::class, fn () => $config);
+    app()->singleton(TelltaleConfig::class, fn () => $config);
 
-    $provider = new FlareServiceProvider(
+    $provider = new TelltaleServiceProvider(
         resolve(Application::class),
         isUsingSubtasksClosure: $isUsingSubtasks ? fn () => true : null,
     );

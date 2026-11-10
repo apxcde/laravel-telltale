@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Tests\stubs\Models;
+namespace Apxcde\LaravelTelltale\Tests\stubs\Models;
 
 class Car
 {

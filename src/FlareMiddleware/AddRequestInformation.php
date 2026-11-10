@@ -1,13 +1,13 @@
 <?php
 
-namespace Spatie\LaravelFlare\FlareMiddleware;
+namespace Apxcde\LaravelTelltale\FlareMiddleware;
 
 use Illuminate\Http\Request as LaravelRequest;
 use Spatie\FlareClient\FlareMiddleware\AddRequestInformation as BaseAddRequestInformation;
 use Spatie\FlareClient\Support\Redactor;
-use Spatie\LaravelFlare\AttributesProviders\LaravelRequestAttributesProvider;
-use Spatie\LaravelFlare\AttributesProviders\LaravelUserAttributesProvider;
-use Spatie\LaravelFlare\Support\LivewireComponentFinder;
+use Apxcde\LaravelTelltale\AttributesProviders\LaravelRequestAttributesProvider;
+use Apxcde\LaravelTelltale\AttributesProviders\LaravelUserAttributesProvider;
+use Apxcde\LaravelTelltale\Support\LivewireComponentFinder;
 
 class AddRequestInformation extends BaseAddRequestInformation
 {

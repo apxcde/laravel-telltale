@@ -2,8 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Spatie\LaravelFlare\AttributesProviders\LivewireAttributesProvider;
-use Spatie\LaravelFlare\Tests\TestClasses\FakeLivewireManager;
+use Apxcde\LaravelTelltale\AttributesProviders\LivewireAttributesProvider;
+use Apxcde\LaravelTelltale\Tests\TestClasses\FakeLivewireManager;
 
 beforeEach(function () {
     $this->livewireManager = resolve(FakeLivewireManager::class);
@@ -119,7 +119,7 @@ it('preserves per-component updates for multi-component requests', function () {
     ], ['X-Livewire' => 1])->assertOk();
 
     $attributes = (new LivewireAttributesProvider(
-        app(\Spatie\LaravelFlare\Support\LivewireComponentFinder::class),
+        app(\Apxcde\LaravelTelltale\Support\LivewireComponentFinder::class),
         $providedRequest,
     ))->toArray();
 
@@ -226,7 +226,7 @@ function createRequestPayload(array $fingerprint, array $updates = [], array $se
     ], ['X-Livewire' => 1])->assertOk();
 
     return (new LivewireAttributesProvider(
-        app(\Spatie\LaravelFlare\Support\LivewireComponentFinder::class),
+        app(\Apxcde\LaravelTelltale\Support\LivewireComponentFinder::class),
         $providedRequest,
     ))->toArray();
 }

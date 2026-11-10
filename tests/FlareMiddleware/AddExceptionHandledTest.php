@@ -2,7 +2,7 @@
 
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Orchestra\Testbench\Exceptions\Handler;
-use Spatie\LaravelFlare\Facades\Flare;
+use Apxcde\LaravelTelltale\Facades\Telltale;
 
 it('can see when an exception is handled, meaning it is reported', function () {
     setupFlare();
@@ -12,7 +12,7 @@ it('can see when an exception is handled, meaning it is reported', function () {
 
         public function report(Throwable $e)
         {
-            self::$report = Flare::report($e)->toArray();
+            self::$report = Telltale::report($e)->toArray();
         }
     };
 
@@ -31,7 +31,7 @@ it('will not mark an exception handled when it is not', function () {
 
     $someTriggeredException = new Exception('This is a test exception');
 
-    $report = Flare::report($someTriggeredException);
+    $report = Telltale::report($someTriggeredException);
 
     expect($report)->toHaveKey('handled', null);
 });

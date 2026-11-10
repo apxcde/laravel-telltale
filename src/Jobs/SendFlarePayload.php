@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Jobs;
+namespace Apxcde\LaravelTelltale\Jobs;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Config\Repository;
@@ -41,7 +41,7 @@ class SendFlarePayload implements ShouldQueue
 
         $sender->post(
             $this->endpoint,
-            $config->get('flare.key'),
+            $config->get('telltale.key'),
             $this->payload,
             $this->type,
             test: false,

@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\FlareMiddleware;
+namespace Apxcde\LaravelTelltale\FlareMiddleware;
 
 use Spatie\FlareClient\FlareMiddleware\AddConsoleInformation as BaseAddConsoleInformation;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Support;
+namespace Apxcde\LaravelTelltale\Support;
 
 use Closure;
 use Illuminate\Contracts\Config\Repository;
@@ -23,7 +23,7 @@ use Spatie\FlareClient\Resources\Resource;
 use Spatie\FlareClient\Support\Ids;
 use Spatie\FlareClient\Support\SymfonyTester;
 use Spatie\FlareClient\Time\Time;
-use Spatie\LaravelFlare\Commands\TestCommand;
+use Apxcde\LaravelTelltale\Commands\TestCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -55,10 +55,21 @@ class LaravelTester extends SymfonyTester
         );
     }
 
+    protected function runTests(): bool
+    {
+        if ($this->config->baseUrl === '') {
+            $this->writeLine('❌ Telltale base URL not specified. Set `TELLTALE_BASE_URL` to the URL of your Telltale installation.', self::STYLE_ERROR);
+
+            return false;
+        }
+
+        return parent::runTests();
+    }
+
     /** @return array<string, mixed> */
     protected function debugSections(): array
     {
-        $flare = $this->repository->get('flare', []);
+        $flare = $this->repository->get('telltale', []);
 
         if (isset($flare['key'])) {
             $flare['key'] = '<redacted>';
@@ -66,7 +77,7 @@ class LaravelTester extends SymfonyTester
 
         return [
             ...parent::debugSections(),
-            'flare.php config' => $flare,
+            'telltale.php config' => $flare,
             'logging.php config' => $this->repository->get('logging', []),
         ];
     }
@@ -76,7 +87,7 @@ class LaravelTester extends SymfonyTester
         return [
             ...parent::environmentInfo(),
             ['Laravel', $this->app->version()],
-            ['spatie/laravel-flare', Telemetry::getVersion()],
+            ['apxcde/laravel-telltale', Telemetry::getVersion()],
         ];
     }
 
@@ -84,11 +95,11 @@ class LaravelTester extends SymfonyTester
     {
         $entryPoint = new EntryPoint(
             type: EntryPointType::Cli,
-            value: 'artisan flare:test',
+            value: 'artisan telltale:test',
         );
 
         $entryPoint->setHandler(
-            handlerIdentifier: 'flare:test',
+            handlerIdentifier: 'telltale:test',
             handlerName: TestCommand::class,
             handlerType: 'php_command',
         );
@@ -111,12 +122,12 @@ class LaravelTester extends SymfonyTester
             return true;
         }
 
-        $this->writeLine('❌ The Flare error callback was not configured correctly.', self::STYLE_ERROR);
+        $this->writeLine('❌ The Telltale error callback was not configured correctly.', self::STYLE_ERROR);
         $this->writeNewline();
         $this->io->writeln('<fg=default;bg=default>Please ensure the following code is present in your `<fg=green>bootstrap/app.php</>` file:</>');
         $this->writeNewline();
         $this->io->writeln('<fg=default;bg=default>-><fg=green>withExceptions</>(<fg=blue>function</> (<fg=red>Exceptions</> $exceptions) {</>');
-        $this->io->writeln('<fg=default;bg=default>    <fg=red>Flare</>::<fg=green>handles</>($exceptions);</>');
+        $this->io->writeln('<fg=default;bg=default>    <fg=red>Telltale</>::<fg=green>handles</>($exceptions);</>');
         $this->io->writeln('<fg=default;bg=default>})-><fg=green>create</>();</>');
 
         return false;
@@ -129,7 +140,7 @@ class LaravelTester extends SymfonyTester
         $flareChannelName = null;
 
         foreach ($channels as $name => $channel) {
-            if (($channel['driver'] ?? null) === 'flare') {
+            if (($channel['driver'] ?? null) === 'telltale') {
                 $flareChannelName = $name;
 
                 break;
@@ -137,7 +148,7 @@ class LaravelTester extends SymfonyTester
         }
 
         if ($flareChannelName === null) {
-            $this->writeLine('❌ No logging channel with the `flare` driver found. Please add a `flare` channel to your `config/logging.php` file.', self::STYLE_ERROR);
+            $this->writeLine('❌ No logging channel with the `telltale` driver found. Please add a `telltale` channel to your `config/logging.php` file.', self::STYLE_ERROR);
 
             return false;
         }
@@ -173,7 +184,7 @@ class LaravelTester extends SymfonyTester
         $this->writeLine("❌ The `{$flareChannelName}` log channel exists but is not part of your default logging stack.", self::STYLE_ERROR);
         $this->writeNewline();
         $this->io->writeln('<fg=default;bg=default>Laravel Cloud sets its own log channel and overrides the one in your config.</>');
-        $this->io->writeln('<fg=default;bg=default>These settings send your logs to both the Laravel Cloud dashboard and Flare.</>');
+        $this->io->writeln('<fg=default;bg=default>These settings send your logs to both the Laravel Cloud dashboard and Telltale.</>');
         $this->io->writeln('<fg=default;bg=default>Add them on <fg=green>cloud.laravel.com</> under Application Settings -> General, in the</>');
         $this->io->writeln('<fg=default;bg=default>Custom environment variables section:</>');
         $this->writeNewline();
@@ -213,7 +224,9 @@ class LaravelTester extends SymfonyTester
                     continue;
                 }
 
-                return $closureReturnTypeReflection->getName() === Flare::class;
+                if ($closureReturnTypeReflection->getName() === Flare::class) {
+                    return true;
+                }
             }
         } catch (ReflectionException $exception) {
             return false;

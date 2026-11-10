@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Tests\TestClasses;
+namespace Apxcde\LaravelTelltale\Tests\TestClasses;
 
 use Spatie\Backtrace\Arguments\ReducedArgument\ReducedArgument;
 use Spatie\Backtrace\Arguments\ReducedArgument\ReducedArgumentContract;

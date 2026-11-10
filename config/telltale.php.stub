@@ -4,40 +4,40 @@ return [
     /*
     |
     |--------------------------------------------------------------------------
-    | Flare API key
+    | Telltale project key
     |--------------------------------------------------------------------------
     |
-    | Specify Flare's API key below to enable error reporting to the service.
-    |
-    | More info: https://flareapp.io/docs/flare/general/getting-started
+    | The key of the Telltale project this application reports to. Nothing
+    | is sent while the key is empty.
     |
     */
 
-    'key' => env('FLARE_KEY'),
+    'key' => env('TELLTALE_KEY'),
 
     /*
-    |
     |--------------------------------------------------------------------------
-    | Flare Base URL
+    | Telltale base URL
     |--------------------------------------------------------------------------
     |
-    | Which server should be used to send the reports/traces to.
+    | The URL of your Telltale installation, for example
+    | `https://telltale.example.com`. There is no default: nothing is sent
+    | while the base URL is empty, even when a key is set.
     |
     */
 
-    'base_url' => env('FLARE_BASE_URL', \Spatie\FlareClient\Api::BASE_URL),
+    'base_url' => env('TELLTALE_BASE_URL'),
 
     /*
     |--------------------------------------------------------------------------
     | Collects
     |--------------------------------------------------------------------------
     |
-    | Flare will collect a lot of information about your application. You can
+    | Telltale will collect a lot of information about your application. You can
     | disable some of the collectors here, configure them or add your own.
     |
     */
 
-    'collects' => \Spatie\LaravelFlare\FlareConfig::defaultCollects(
+    'collects' => \Apxcde\LaravelTelltale\TelltaleConfig::defaultCollects(
         ignore: [],
         extra: []
     ),
@@ -48,7 +48,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | It is possible to censor sensitive data from the reports and sent to
-    | Flare. Below you can specify which fields, headers and cookies should
+    | Telltale. Below you can specify which fields, headers and cookies should
     | be censored. A trailing `*` in a cookie name matches every cookie
     | starting with that name. The session cookie is always censored. It
     | is also possible to hide the client's IP address.
@@ -82,7 +82,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | The sender is responsible for sending the error reports and traces to
-    | Flare. By default, Laravel Flare sends them over HTTP. To use the local
+    | Telltale. By default, they are sent over HTTP. To use a local
     | Flare daemon, switch the sender class to
     | `Spatie\FlareClient\Senders\DaemonSender::class` and set `daemon_url`.
     | The daemon sender defaults to localhost on port 8787 and uses its own
@@ -91,22 +91,30 @@ return [
     */
 
     'sender' => [
-        'class' => \Spatie\LaravelFlare\Senders\LaravelHttpSender::class,
+        'class' => \Apxcde\LaravelTelltale\Senders\LaravelHttpSender::class,
         'config' => [
             'timeout' => 10,
         ],
     ],
+
+    // Daemon sender example
+    // 'sender' => [
+    //     'class' => \Spatie\FlareClient\Senders\DaemonSender::class,
+    //     'config' => [
+    //         'daemon_url' => env('TELLTALE_DAEMON_URL', 'http://127.0.0.1:8787'),
+    //     ],
+    // ],
 
     /*
     |--------------------------------------------------------------------------
     | Report
     |--------------------------------------------------------------------------
     |
-    | Flare reports errors and exceptions happening within your application.
+    | Telltale reports errors and exceptions happening within your application.
     |
     */
 
-    'report' => env('FLARE_REPORT', true),
+    'report' => env('TELLTALE_REPORT', true),
 
     /*
     |--------------------------------------------------------------------------
@@ -115,30 +123,16 @@ return [
     | When reporting errors, you can specify which error levels should be
     | reported. By default, all error levels are reported by setting
     | this value to `null`.
-     */
-
-    'report_error_levels' => null,
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Share button
-    |--------------------------------------------------------------------------
-    |
-    | Flare automatically adds a Share button to the laravel error page. This
-    | button allows you to easily share errors with colleagues or friends. It
-    | is enabled by default, but you can disable it here.
-    |
     */
 
-    'enable_share_button' => true,
+    'report_error_levels' => null,
 
     /*
     |--------------------------------------------------------------------------
     | Override grouping
     |--------------------------------------------------------------------------
     |
-    | Flare will try to group errors and exceptions as best as possible, that
+    | Telltale will try to group errors and exceptions as best as possible, that
     | being said, sometimes you might want to override the grouping. You can
     | do this by adding exception classes to this array which should always
     | be grouped by exception class, exception message or exception class
@@ -150,6 +144,17 @@ return [
         // Illuminate\Http\Client\ConnectionException::class => Spatie\FlareClient\Enums\OverriddenGrouping::ExceptionMessageAndClass,
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Share button
+    |--------------------------------------------------------------------------
+    |
+    | The Share button on the Laravel error page uploads the error to
+    | flareapp.io, a third party, so it is disabled by default.
+    |
+    */
+
+    'enable_share_button' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -158,46 +163,29 @@ return [
     |
     | Tracing allows you to see the flow of your application. It shows you
     | which parts of your application are slow and which parts are fast.
+    | It is disabled by default; enable it with `TELLTALE_TRACE=true`.
     |
     */
 
-    'trace' => env('FLARE_TRACE', true),
+    'trace' => env('TELLTALE_TRACE', false),
 
     /*
-   |--------------------------------------------------------------------------
-   | Sampler
-   |--------------------------------------------------------------------------
-   |
-   | The sampler is used to determine which traces should be recorded and
-   | which traces should be dropped. It is possible to set the rate
-   | at which traces should be recorded. The default rate is 0.1
-   | which means that 10% of the traces will be recorded.
-   |
-   */
+    |--------------------------------------------------------------------------
+    | Sampler
+    |--------------------------------------------------------------------------
+    |
+    | The sampler is used to determine which traces should be recorded and
+    | which traces should be dropped. It is possible to set the rate
+    | at which traces should be recorded. The default rate is 0.1
+    | which means that 10% of the traces will be recorded.
+    |
+    */
 
     'sampler' => [
         'class' => \Spatie\FlareClient\Sampling\RateSampler::class,
         'config' => [
-            'rate' => env('FLARE_SAMPLER_RATE', 0.1),
+            'rate' => env('TELLTALE_SAMPLER_RATE', 0.1),
         ],
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Trace limits
-    |--------------------------------------------------------------------------
-    |
-    | Limits for the tracing data. These limits are used to prevent
-    | the tracing data from growing too large.
-    |
-    */
-
-    'trace_limits' => [
-        'max_spans' => 1024,
-        'max_attributes_per_span' => 128,
-        'max_span_events_per_span' => 128,
-        'max_attributes_per_span_event' => 128,
-        'max_attribute_size_in_kb' => 32,
     ],
 
     /*
@@ -206,22 +194,22 @@ return [
     |--------------------------------------------------------------------------
     |
     | Logging show you an overview of log entries within your application.
-    | Logs are only sent when a channel using the `flare` driver is part of
+    | Logs are only sent when a channel using the `telltale` driver is part of
     | your logging stack in `config/logging.php`. You can disable the
-    | collection of logs by setting `FLARE_LOG=false`.
+    | collection of logs by setting `TELLTALE_LOG=false`.
     |
     */
 
-    'log' => env('FLARE_LOG', true),
+    'log' => env('TELLTALE_LOG', true),
 
     /*
     |--------------------------------------------------------------------------
     | Minimal log level
     |--------------------------------------------------------------------------
     |
-    | You can specify the minimal (Monolog) log level that should be sent to Flare.
+    | You can specify the minimal (Monolog) log level that should be sent to Telltale.
     | Log levels lower than the specified level will be ignored.
-    | If null all log levels will be sent to Flare.
+    | If null all log levels will be sent to Telltale.
     |
     */
 

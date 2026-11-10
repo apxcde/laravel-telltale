@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Tests\stubs\Jobs;
+namespace Apxcde\LaravelTelltale\Tests\stubs\Jobs;
 
 use Carbon\CarbonImmutable;
 use Exception;

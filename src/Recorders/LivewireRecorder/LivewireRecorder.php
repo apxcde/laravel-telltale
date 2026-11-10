@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Recorders\LivewireRecorder;
+namespace Apxcde\LaravelTelltale\Recorders\LivewireRecorder;
 
 use Exception;
 use Illuminate\View\View;
@@ -13,10 +13,10 @@ use Spatie\FlareClient\Enums\RecorderType;
 use Spatie\FlareClient\Recorders\SpansRecorder;
 use Spatie\FlareClient\Support\BackTracer;
 use Spatie\FlareClient\Tracer;
-use Spatie\LaravelFlare\Enums\LivewireComponentPhase;
-use Spatie\LaravelFlare\Enums\SpanType;
-use Spatie\LaravelFlare\Recorders\ViewRecorder\ViewRecorder;
-use Spatie\LaravelFlare\Support\LivewireComponentFinder;
+use Apxcde\LaravelTelltale\Enums\LivewireComponentPhase;
+use Apxcde\LaravelTelltale\Enums\SpanType;
+use Apxcde\LaravelTelltale\Recorders\ViewRecorder\ViewRecorder;
+use Apxcde\LaravelTelltale\Support\LivewireComponentFinder;
 use Throwable;
 
 class LivewireRecorder extends SpansRecorder

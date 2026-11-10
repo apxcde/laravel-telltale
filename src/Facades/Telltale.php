@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Facades;
+namespace Apxcde\LaravelTelltale\Facades;
 
 use Closure;
 use Illuminate\Contracts\Debug\ExceptionHandler;
@@ -10,10 +10,10 @@ use Spatie\FlareClient\Flare as FlareClient;
 use Spatie\FlareClient\Recorders\GlowRecorder\GlowRecorder;
 use Spatie\FlareClient\Recorders\ResponseRecorder\ResponseRecorder;
 use Spatie\FlareClient\Tracer;
-use Spatie\LaravelFlare\FlareConfig;
-use Spatie\LaravelFlare\Recorders\FilesystemRecorder\FilesystemRecorder;
-use Spatie\LaravelFlare\Recorders\RequestRecorder\RequestRecorder;
-use Spatie\LaravelFlare\Recorders\RoutingRecorder\RoutingRecorder;
+use Apxcde\LaravelTelltale\TelltaleConfig;
+use Apxcde\LaravelTelltale\Recorders\FilesystemRecorder\FilesystemRecorder;
+use Apxcde\LaravelTelltale\Recorders\RequestRecorder\RequestRecorder;
+use Apxcde\LaravelTelltale\Recorders\RoutingRecorder\RoutingRecorder;
 use Throwable;
 
 /**
@@ -29,7 +29,7 @@ use Throwable;
  * @method static Tracer tracer()
  * @see \Spatie\FlareClient\Flare
  */
-class Flare extends Facade
+class Telltale extends Facade
 {
     protected static function getFacadeAccessor()
     {
@@ -44,7 +44,7 @@ class Flare extends Facade
     public static function handles(?Exceptions $exceptions = null): void
     {
         $reportable = static function (Throwable $exception): ?FlareClient {
-            $config = app(FlareConfig::class);
+            $config = app(TelltaleConfig::class);
 
             if ($config->apiToken === null) {
                 return null;

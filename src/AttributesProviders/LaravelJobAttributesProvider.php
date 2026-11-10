@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\AttributesProviders;
+namespace Apxcde\LaravelTelltale\AttributesProviders;
 
 use Carbon\CarbonImmutable;
 use Carbon\Exceptions\InvalidFormatException;

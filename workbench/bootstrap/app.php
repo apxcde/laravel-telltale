@@ -5,7 +5,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
-use Spatie\LaravelFlare\Facades\Flare;
+use Apxcde\LaravelTelltale\Facades\Telltale;
 use function Orchestra\Testbench\default_skeleton_path;
 
 return Application::configure(basePath: $APP_BASE_PATH ?? default_skeleton_path())
@@ -17,5 +17,5 @@ return Application::configure(basePath: $APP_BASE_PATH ?? default_skeleton_path(
         $middleware->validateCsrfTokens(except: ['*']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        Flare::handles($exceptions);
+        Telltale::handles($exceptions);
     })->create();

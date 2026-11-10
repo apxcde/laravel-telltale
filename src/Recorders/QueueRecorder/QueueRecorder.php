@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Recorders\QueueRecorder;
+namespace Apxcde\LaravelTelltale\Recorders\QueueRecorder;
 
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Queue\Events\JobQueued;
@@ -10,8 +10,8 @@ use Spatie\FlareClient\Spans\Span;
 use Spatie\FlareClient\Support\BackTracer;
 use Spatie\FlareClient\Support\Ids;
 use Spatie\FlareClient\Tracer;
-use Spatie\LaravelFlare\AttributesProviders\LaravelQueuedJobAttributesProvider;
-use Spatie\LaravelFlare\Recorders\JobRecorder\JobRecorder;
+use Apxcde\LaravelTelltale\AttributesProviders\LaravelQueuedJobAttributesProvider;
+use Apxcde\LaravelTelltale\Recorders\JobRecorder\JobRecorder;
 
 class QueueRecorder extends BaseQueueRecorder
 {

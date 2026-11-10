@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Sampling;
+namespace Apxcde\LaravelTelltale\Sampling;
 
 use Spatie\FlareClient\Sampling\SamplingRule as BaseSamplingRule;
 

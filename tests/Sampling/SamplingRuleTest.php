@@ -6,11 +6,11 @@ use Spatie\FlareClient\Sampling\DeferredSamplerRule;
 use Spatie\FlareClient\Sampling\Rules\PathSamplingRule;
 use Spatie\FlareClient\Sampling\Rules\UrlSamplingRule;
 use Spatie\FlareClient\Sampling\SamplingRule as BaseSamplingRule;
-use Spatie\LaravelFlare\Sampling\QueueConnectionSamplingRule;
-use Spatie\LaravelFlare\Sampling\QueueNameSamplingRule;
-use Spatie\LaravelFlare\Sampling\RouteActionSamplingRule;
-use Spatie\LaravelFlare\Sampling\RouteNameSamplingRule;
-use Spatie\LaravelFlare\Sampling\SamplingRule;
+use Apxcde\LaravelTelltale\Sampling\QueueConnectionSamplingRule;
+use Apxcde\LaravelTelltale\Sampling\QueueNameSamplingRule;
+use Apxcde\LaravelTelltale\Sampling\RouteActionSamplingRule;
+use Apxcde\LaravelTelltale\Sampling\RouteNameSamplingRule;
+use Apxcde\LaravelTelltale\Sampling\SamplingRule;
 
 it('builds a route-name rule from the fluent factory', function () {
     $rule = SamplingRule::forRouteName('admin.*', 1.0);

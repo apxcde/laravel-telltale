@@ -4,13 +4,13 @@ use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Collection;
 use Spatie\Backtrace\Arguments\ArgumentReducers;
 use Spatie\FlareClient\Flare;
-use Spatie\LaravelFlare\FlareConfig;
-use Spatie\LaravelFlare\Tests\TestClasses\FakeArgumentsReducer;
+use Apxcde\LaravelTelltale\TelltaleConfig;
+use Apxcde\LaravelTelltale\Tests\TestClasses\FakeArgumentsReducer;
 
 beforeEach(function () {
     ini_set('zend.exception_ignore_args', 0); // Enabled on GH actions
 
-    app()->singleton(FlareConfig::class, fn () => FlareConfig::make('fake')->stackArguments(false));
+    app()->singleton(TelltaleConfig::class, fn () => TelltaleConfig::make('fake')->stackArguments(false));
 });
 
 it('can reduce a collection', function () {
@@ -57,7 +57,7 @@ it('can reduce a model', function () {
 });
 
 it('can disable the use of arguments', function () {
-    $flare = setupFlare(fn (FlareConfig $config) => $config->ignoreStackFrameArguments());
+    $flare = setupFlare(fn (TelltaleConfig $config) => $config->ignoreStackFrameArguments());
 
     function exceptionWithArgumentsDisabled(string $string)
     {
@@ -70,7 +70,7 @@ it('can disable the use of arguments', function () {
 });
 
 it('can set a custom arguments reducer', function () {
-    $flare = setupFlare(fn (FlareConfig $config) => $config->collectStackFrameArguments(argumentReducers: ArgumentReducers::create([
+    $flare = setupFlare(fn (TelltaleConfig $config) => $config->collectStackFrameArguments(argumentReducers: ArgumentReducers::create([
         FakeArgumentsReducer::class,
     ])));
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Recorders\NotificationRecorder;
+namespace Apxcde\LaravelTelltale\Recorders\NotificationRecorder;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -12,7 +12,7 @@ use Spatie\FlareClient\Recorders\SpansRecorder;
 use Spatie\FlareClient\Spans\Span;
 use Spatie\FlareClient\Support\BackTracer;
 use Spatie\FlareClient\Tracer;
-use Spatie\LaravelFlare\AttributesProviders\LaravelUserAttributesProvider;
+use Apxcde\LaravelTelltale\AttributesProviders\LaravelUserAttributesProvider;
 
 class NotificationRecorder extends SpansRecorder
 {

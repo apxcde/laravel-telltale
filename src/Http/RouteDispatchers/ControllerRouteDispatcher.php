@@ -1,11 +1,11 @@
 <?php
 
-namespace Spatie\LaravelFlare\Http\RouteDispatchers;
+namespace Apxcde\LaravelTelltale\Http\RouteDispatchers;
 
 use Illuminate\Routing\Contracts\ControllerDispatcher;
 use Illuminate\Routing\Route;
 use Spatie\FlareClient\Tracer;
-use Spatie\LaravelFlare\Http\RouteDispatchers\Concerns\DispatchesRoutes;
+use Apxcde\LaravelTelltale\Http\RouteDispatchers\Concerns\DispatchesRoutes;
 
 class ControllerRouteDispatcher implements ControllerDispatcher
 {

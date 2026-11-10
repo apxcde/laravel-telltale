@@ -12,7 +12,7 @@ use Spatie\FlareClient\Enums\CacheOperation;
 use Spatie\FlareClient\Enums\CacheResult;
 use Spatie\FlareClient\Enums\SpanEventType;
 use Spatie\FlareClient\Tests\Shared\FakeApi;
-use Spatie\LaravelFlare\FlareConfig;
+use Apxcde\LaravelTelltale\TelltaleConfig;
 
 beforeEach(function () {
     config()->set('cache.default', 'array');
@@ -98,7 +98,7 @@ it('does not ignore keys written by flexible since they contain a user defined k
 it('can ignore additional cache keys', function () {
     Cache::clear();
 
-    setupFlare(fn (FlareConfig $config) => $config->collectCacheEvents(
+    setupFlare(fn (TelltaleConfig $config) => $config->collectCacheEvents(
         ignoredKeys: ['/^internal:/'],
     ));
 

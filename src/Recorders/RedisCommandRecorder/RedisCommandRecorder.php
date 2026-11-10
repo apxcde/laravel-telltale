@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Recorders\RedisCommandRecorder;
+namespace Apxcde\LaravelTelltale\Recorders\RedisCommandRecorder;
 
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Redis\Events\CommandExecuted;

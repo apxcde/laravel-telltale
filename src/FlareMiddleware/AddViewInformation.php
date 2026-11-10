@@ -1,13 +1,13 @@
 <?php
 
-namespace Spatie\LaravelFlare\FlareMiddleware;
+namespace Apxcde\LaravelTelltale\FlareMiddleware;
 
 use Closure;
 use Spatie\Backtrace\Arguments\ReduceArgumentPayloadAction;
 use Spatie\FlareClient\FlareMiddleware\FlareMiddleware;
 use Spatie\FlareClient\Recorders\DumpRecorder\HtmlDumper;
 use Spatie\FlareClient\ReportFactory;
-use Spatie\LaravelFlare\Exceptions\ViewException;
+use Apxcde\LaravelTelltale\Exceptions\ViewException;
 
 class AddViewInformation implements FlareMiddleware
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Tests\Mocks;
+namespace Apxcde\LaravelTelltale\Tests\Mocks;
 
 use Illuminate\Cache\ArrayStore;
 

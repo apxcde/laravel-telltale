@@ -1,9 +1,9 @@
 <?php
 
-namespace Spatie\LaravelFlare\Recorders\LivewireRecorder;
+namespace Apxcde\LaravelTelltale\Recorders\LivewireRecorder;
 
 use Spatie\FlareClient\Spans\Span;
-use Spatie\LaravelFlare\Enums\LivewireComponentPhase;
+use Apxcde\LaravelTelltale\Enums\LivewireComponentPhase;
 
 /**
  * A component runs through one of two flows.

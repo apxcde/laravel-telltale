@@ -1,19 +1,19 @@
 <?php
 
-namespace Spatie\LaravelFlare\Http\RouteDispatchers\Concerns;
+namespace Apxcde\LaravelTelltale\Http\RouteDispatchers\Concerns;
 
 use Closure;
-use Spatie\LaravelFlare\Facades\Flare;
+use Apxcde\LaravelTelltale\Facades\Telltale;
 
 trait DispatchesRoutes
 {
     protected function wrapDispatcher(Closure $dispatch): mixed
     {
-        Flare::routing()?->recordBeforeMiddlewareEnd();
+        Telltale::routing()?->recordBeforeMiddlewareEnd();
 
         $dispatched = $dispatch();
 
-        Flare::response()?->recordStart();
+        Telltale::response()?->recordStart();
 
         return $dispatched;
     }

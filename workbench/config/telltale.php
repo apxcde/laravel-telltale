@@ -1,17 +1,18 @@
 <?php
 
-use Spatie\FlareClient\Api;
 use Spatie\FlareClient\Enums\CollectType;
-use Spatie\LaravelFlare\AttributesProviders\LaravelUserAttributesProvider;
-use Spatie\LaravelFlare\Enums\LaravelCollectType;
-use Spatie\LaravelFlare\FlareConfig;
+use Apxcde\LaravelTelltale\AttributesProviders\LaravelUserAttributesProvider;
+use Apxcde\LaravelTelltale\Enums\LaravelCollectType;
+use Apxcde\LaravelTelltale\TelltaleConfig;
 use Workbench\App\Jobs\IgnoredJob;
 use Workbench\App\Senders\FileSender;
 
 return [
     'key' => 'fake-api-key-for-testing-only',
 
-    'collects' => FlareConfig::defaultCollects(
+    'base_url' => 'https://telltale.invalid',
+
+    'collects' => TelltaleConfig::defaultCollects(
         ignore: [],
         extra: [
             CollectType::Jobs->value => [

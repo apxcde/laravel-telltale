@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\ArgumentReducers;
+namespace Apxcde\LaravelTelltale\ArgumentReducers;
 
 use Spatie\Backtrace\Arguments\ArgumentReducers as BaseArgumentReducers;
 

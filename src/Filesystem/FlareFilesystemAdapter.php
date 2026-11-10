@@ -1,9 +1,9 @@
 <?php
 
-namespace Spatie\LaravelFlare\Filesystem;
+namespace Apxcde\LaravelTelltale\Filesystem;
 
 use Illuminate\Filesystem\FilesystemAdapter;
-use Spatie\LaravelFlare\Filesystem\Concerns\WrapsFilesystemAdapter;
+use Apxcde\LaravelTelltale\Filesystem\Concerns\WrapsFilesystemAdapter;
 
 class FlareFilesystemAdapter extends FilesystemAdapter
 {

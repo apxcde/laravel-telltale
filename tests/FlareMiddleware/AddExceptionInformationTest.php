@@ -1,14 +1,14 @@
 <?php
 
 use Illuminate\Database\QueryException;
-use Spatie\LaravelFlare\Facades\Flare;
+use Apxcde\LaravelTelltale\Facades\Telltale;
 
 it('will add query information with a query exception', function () {
     setupFlare();
 
     $sql = 'select * from users where emai = "ruben@spatie.be"';
 
-    $report = Flare::report(new QueryException(
+    $report = Telltale::report(new QueryException(
         'default',
         '' . $sql . '',
         [],
@@ -33,7 +33,7 @@ it('rewrites the query exception message with quoted string bindings', function 
 
     $originalMessage = $exception->getMessage();
 
-    $report = Flare::report($exception)->toArray();
+    $report = Telltale::report($exception)->toArray();
 
     expect($report['message'])->toBe(
         'SQLSTATE[HY000]: General error: 1020 Record has changed (Connection: sqlite, SQL: delete from "users" where "ref_id" in (\'019e4430-4bce-73fa-a8fb-6fedc84e6fd2\', \'019e4430-4bce-73fa-a8fb-6fedc8f854f2\'))'
@@ -54,7 +54,7 @@ it('correctly substitutes every supported binding type', function () {
         new Exception('SQLSTATE[HY000]: boom'),
     );
 
-    $report = Flare::report($exception)->toArray();
+    $report = Telltale::report($exception)->toArray();
 
     expect($report['message'])->toBe(
         'SQLSTATE[HY000]: boom (Connection: sqlite, SQL: select * from "t" where "a" = \'hello\' and "b" = \'O\'\'Brien\' and "c" = 42 and "d" = 3.14 and "e" = 1 and "f" = 0 and "g" is NULL and "h" = 0 and "i" = \'\')'
@@ -74,7 +74,7 @@ it('leaves the report message untouched when the format is unexpected', function
     (new ReflectionProperty(Exception::class, 'message'))
         ->setValue($exception, 'something completely different without the expected suffix');
 
-    $report = Flare::report($exception)->toArray();
+    $report = Telltale::report($exception)->toArray();
 
     expect($report['message'])->toBe('something completely different without the expected suffix');
 });
@@ -82,7 +82,7 @@ it('leaves the report message untouched when the format is unexpected', function
 it('wont add query information without a query exception', function () {
     setupFlare();
 
-    $report = Flare::report(new Exception())->toArray();
+    $report = Telltale::report(new Exception())->toArray();
 
     $attributes = $report['attributes'];
 
@@ -92,7 +92,7 @@ it('wont add query information without a query exception', function () {
 it('will add user context when provided on a custom exception', function () {
     setupFlare();
 
-    $report = Flare::report(new class extends Exception {
+    $report = Telltale::report(new class extends Exception {
         public function context()
         {
             return [
@@ -109,7 +109,7 @@ it('will add user context when provided on a custom exception', function () {
 it('will only add arrays as user provided context', function () {
     setupFlare();
 
-    $report = Flare::report(new class extends Exception {
+    $report = Telltale::report(new class extends Exception {
         public function context()
         {
             return (object) [

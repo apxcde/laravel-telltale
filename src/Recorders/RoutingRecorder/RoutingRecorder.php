@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Recorders\RoutingRecorder;
+namespace Apxcde\LaravelTelltale\Recorders\RoutingRecorder;
 
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Foundation\Application;
@@ -13,9 +13,9 @@ use Spatie\FlareClient\Recorders\RoutingRecorder\RoutingRecorder as BaseRoutingR
 use Spatie\FlareClient\Support\BackTracer;
 use Spatie\FlareClient\Support\Lifecycle;
 use Spatie\FlareClient\Tracer;
-use Spatie\LaravelFlare\AttributesProviders\LaravelRouteAttributesProvider;
-use Spatie\LaravelFlare\Facades\Flare;
-use Spatie\LaravelFlare\Http\Middleware\FlareTracingMiddleware;
+use Apxcde\LaravelTelltale\AttributesProviders\LaravelRouteAttributesProvider;
+use Apxcde\LaravelTelltale\Facades\Telltale;
+use Apxcde\LaravelTelltale\Http\Middleware\FlareTracingMiddleware;
 
 class RoutingRecorder extends BaseRoutingRecorder
 {
@@ -61,14 +61,14 @@ class RoutingRecorder extends BaseRoutingRecorder
             FlareTracingMiddleware::$routeAttributesProvider ??= LaravelRouteAttributesProvider::fromRequest($event->request);
 
             // In some cases when an error happens in one of these stages (or an abort is thrown) the only event to catch this is the RequestHandled event.
-            Flare::routing()?->recordGlobalBeforeMiddlewareEnd();
-            Flare::routing()?->recordBeforeMiddlewareEnd();
+            Telltale::routing()?->recordGlobalBeforeMiddlewareEnd();
+            Telltale::routing()?->recordBeforeMiddlewareEnd();
 
             FlareTracingMiddleware::$routeAttributesProvider !== null
-                ? Flare::routing()?->recordRoutingEnd(FlareTracingMiddleware::$routeAttributesProvider)
+                ? Telltale::routing()?->recordRoutingEnd(FlareTracingMiddleware::$routeAttributesProvider)
                 : $this->recordForcedRoutingEnd();
 
-            Flare::response()?->recordEnd();
+            Telltale::response()?->recordEnd();
         });
     }
 }

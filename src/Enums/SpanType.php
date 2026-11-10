@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Enums;
+namespace Apxcde\LaravelTelltale\Enums;
 
 use Spatie\FlareClient\Contracts\FlareSpanType;
 
