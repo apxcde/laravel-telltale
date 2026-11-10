@@ -49,7 +49,8 @@ return [
     |
     | It is possible to censor sensitive data from the reports and sent to
     | Telltale. Below you can specify which fields, headers and cookies should
-    | be censored. A trailing `*` in a cookie name matches every cookie
+    | be censored. The body fields also apply to query string parameters in
+    | URLs. A trailing `*` in a cookie name matches every cookie
     | starting with that name. The session cookie is always censored. It
     | is also possible to hide the client's IP address.
     |

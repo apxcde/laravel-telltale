@@ -241,3 +241,23 @@ it('records headers as strings, like every other header attribute', function () 
     expect($attributes['http.response.headers']['X-Multiple'])->toBe('one, two');
     expect($attributes['http.response.headers']['Content-Type'])->toBe('application/json');
 });
+
+it('censors query string values of an outgoing request', function () {
+    $flare = setupFlare(
+        fn ($config) => $config->censorBodyFields('PhoneNumber'),
+        alwaysSampleTraces: true,
+    );
+
+    Http::fake(['https://example.com/*' => Http::response('', 200)]);
+
+    $flare->tracer->startTrace();
+
+    Http::get('https://example.com/lookup?PhoneNumber=%2B15551234567&Type=carrier');
+
+    $flare->tracer->endTrace();
+
+    FakeApi::lastTrace()
+        ->expectSpan(0)
+        ->expectAttribute('url.full', 'https://example.com/lookup?PhoneNumber=<CENSORED:string>&Type=carrier')
+        ->expectAttribute('url.query', 'PhoneNumber=<CENSORED:string>&Type=carrier');
+});
