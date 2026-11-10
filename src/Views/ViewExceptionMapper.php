@@ -1,13 +1,13 @@
 <?php
 
-namespace Spatie\LaravelFlare\Views;
+namespace Apxcde\LaravelTelltale\Views;
 
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Arr;
 use Illuminate\View\Engines\PhpEngine;
 use Illuminate\View\ViewException;
 use ReflectionProperty;
-use Spatie\LaravelFlare\Exceptions\ViewException as FlareViewException;
+use Apxcde\LaravelTelltale\Exceptions\ViewException as FlareViewException;
 use Throwable;
 
 class ViewExceptionMapper

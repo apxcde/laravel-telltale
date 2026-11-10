@@ -8,19 +8,19 @@ use Spatie\FlareClient\Flare;
 use Spatie\FlareClient\Resources\Resource;
 use Spatie\FlareClient\Tests\Shared\FakeApi;
 use Spatie\FlareClient\Tests\Shared\FakeTime;
-use Spatie\LaravelFlare\FlareConfig;
-use Spatie\LaravelFlare\FlareServiceProvider;
+use Apxcde\LaravelTelltale\TelltaleConfig;
+use Apxcde\LaravelTelltale\TelltaleServiceProvider;
 
 beforeEach(function () {
     Artisan::call('view:clear');
 
-    app()['config']['logging.channels.flare'] = [
-        'driver' => 'flare',
+    app()['config']['logging.channels.telltale'] = [
+        'driver' => 'telltale',
     ];
 
-    config()->set('logging.channels.flare.driver', 'flare');
-    config()->set('logging.default', 'flare');
-    config()->set('flare.key', 'some-key');
+    config()->set('logging.channels.telltale.driver', 'telltale');
+    config()->set('logging.default', 'telltale');
+    config()->set('telltale.key', 'some-key');
 
     FakeTime::setup('2019-01-01 12:34:56');
 
@@ -59,19 +59,19 @@ it('will not trace, log or report when flare is disabled', function () {
 });
 
 it('runs configuring callbacks against the config before it is used to boot Flare', function () {
-    FlareServiceProvider::flushConfigurationCallbacks();
-    config()->set('flare.key', 'some-key');
+    TelltaleServiceProvider::flushConfigurationCallbacks();
+    config()->set('telltale.key', 'some-key');
 
-    FlareServiceProvider::configure(fn (FlareConfig $config) => $config->applicationName = 'first');
-    FlareServiceProvider::configure(function (FlareConfig $config) {
+    TelltaleServiceProvider::configure(fn (TelltaleConfig $config) => $config->applicationName = 'first');
+    TelltaleServiceProvider::configure(function (TelltaleConfig $config) {
         $config->applicationName = 'from-hook';
         $config->configureResource(fn (Resource $resource) => $resource->addAttribute('custom.attribute', 'value'));
     });
 
-    app()->register(new FlareServiceProvider(resolve(Application::class)));
+    app()->register(new TelltaleServiceProvider(resolve(Application::class)));
 
-    expect(app(FlareConfig::class)->applicationName)->toBe('from-hook');
+    expect(app(TelltaleConfig::class)->applicationName)->toBe('from-hook');
     expect(app(Resource::class)->attributes)->toHaveKey('custom.attribute', 'value');
 
-    FlareServiceProvider::flushConfigurationCallbacks();
+    TelltaleServiceProvider::flushConfigurationCallbacks();
 });

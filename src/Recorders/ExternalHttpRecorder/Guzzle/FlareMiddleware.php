@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Recorders\ExternalHttpRecorder\Guzzle;
+namespace Apxcde\LaravelTelltale\Recorders\ExternalHttpRecorder\Guzzle;
 
 use Spatie\FlareClient\Flare;
 use Spatie\FlareClient\Recorders\ExternalHttpRecorder\Guzzle\FlareMiddleware as BaseFlareMiddleware;

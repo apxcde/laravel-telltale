@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\FlareMiddleware;
+namespace Apxcde\LaravelTelltale\FlareMiddleware;
 
 use Closure;
 use Spatie\FlareClient\FlareMiddleware\FlareMiddleware;

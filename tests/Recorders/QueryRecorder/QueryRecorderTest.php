@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Schema;
 use Spatie\FlareClient\Enums\SpanType;
 use Spatie\FlareClient\Tests\Shared\FakeApi;
 use Spatie\FlareClient\Time\TimeHelper;
-use Spatie\LaravelFlare\FlareConfig;
+use Apxcde\LaravelTelltale\TelltaleConfig;
 
 beforeEach(function () {
     config()->set('database.default', 'testing');
@@ -68,7 +68,7 @@ it('can report queries', function () {
 });
 
 it('can stop recording bindings', function () {
-    $flare = setupFlare(fn (FlareConfig $config) => $config->collectQueries(includeBindings: false));
+    $flare = setupFlare(fn (TelltaleConfig $config) => $config->collectQueries(includeBindings: false));
 
     $flare->tracer->startTrace();
 
@@ -80,7 +80,7 @@ it('can stop recording bindings', function () {
 });
 
 it('will add origin attributes when a threshold is met and tracing', function () {
-    $flare = setupFlare(fn (FlareConfig $config) => $config->collectQueries(findOriginThreshold: TimeHelper::milliseconds(300)), alwaysSampleTraces: true);
+    $flare = setupFlare(fn (TelltaleConfig $config) => $config->collectQueries(findOriginThreshold: TimeHelper::milliseconds(300)), alwaysSampleTraces: true);
 
     $flare->tracer->startTrace();
 
@@ -96,7 +96,7 @@ it('will add origin attributes when a threshold is met and tracing', function ()
 });
 
 it('will not add origin attributes when a threshold is met and only reporting', function () {
-    $flare = setupFlare(fn (FlareConfig $config) => $config->collectQueries(findOriginThreshold: TimeHelper::milliseconds(300)));
+    $flare = setupFlare(fn (TelltaleConfig $config) => $config->collectQueries(findOriginThreshold: TimeHelper::milliseconds(300)));
 
     $flare->tracer->startTrace();
 
@@ -112,7 +112,7 @@ it('will not add origin attributes when a threshold is met and only reporting', 
 });
 
 it('will not add origin attributes when a threshold is not met', function () {
-    $flare = setupFlare(fn (FlareConfig $config) => $config->collectQueries(findOriginThreshold: TimeHelper::milliseconds(300)), alwaysSampleTraces: true);
+    $flare = setupFlare(fn (TelltaleConfig $config) => $config->collectQueries(findOriginThreshold: TimeHelper::milliseconds(300)), alwaysSampleTraces: true);
 
     $flare->tracer->startTrace();
 
@@ -128,7 +128,7 @@ it('will not add origin attributes when a threshold is not met', function () {
 });
 
 it('will not add origin attributes when the trace origin feature is disabled', function () {
-    $flare = setupFlare(fn (FlareConfig $config) => $config->collectQueries(findOrigin: false, findOriginThreshold: TimeHelper::milliseconds(300)), alwaysSampleTraces: true);
+    $flare = setupFlare(fn (TelltaleConfig $config) => $config->collectQueries(findOrigin: false, findOriginThreshold: TimeHelper::milliseconds(300)), alwaysSampleTraces: true);
 
     $flare->tracer->startTrace();
 
@@ -145,7 +145,7 @@ it('will not add origin attributes when the trace origin feature is disabled', f
 
 
 it('will always add origin attributes when no threshold is set', function () {
-    $flare = setupFlare(fn (FlareConfig $config) => $config->collectQueries(findOriginThreshold: null), alwaysSampleTraces: true);
+    $flare = setupFlare(fn (TelltaleConfig $config) => $config->collectQueries(findOriginThreshold: null), alwaysSampleTraces: true);
 
     $flare->tracer->startTrace();
 

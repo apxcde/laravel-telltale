@@ -1,16 +1,16 @@
 <?php
 
-namespace Spatie\LaravelFlare\Tests;
+namespace Apxcde\LaravelTelltale\Tests;
 
 use Illuminate\Foundation\Testing\Concerns\MakesHttpRequests;
-use Spatie\LaravelFlare\Facades\Flare;
+use Apxcde\LaravelTelltale\Facades\Telltale;
 
 class TestCase extends \Orchestra\Testbench\TestCase
 {
     use MakesHttpRequests;
     protected function getPackageProviders($app)
     {
-        config()->set('flare.key', 'dummy-key');
+        config()->set('telltale.key', 'dummy-key');
 
         return [];
     }
@@ -18,7 +18,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
     protected function getPackageAliases($app)
     {
         return [
-            'Flare' => Flare::class,
+            'Telltale' => Telltale::class,
         ];
     }
 }

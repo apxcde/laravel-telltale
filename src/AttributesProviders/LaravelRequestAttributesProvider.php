@@ -1,11 +1,11 @@
 <?php
 
-namespace Spatie\LaravelFlare\AttributesProviders;
+namespace Apxcde\LaravelTelltale\AttributesProviders;
 
 use Illuminate\Http\Request as LaravelRequest;
 use Spatie\FlareClient\AttributesProviders\SymfonyRequestAttributesProvider;
 use Spatie\FlareClient\Support\Redactor;
-use Spatie\LaravelFlare\Support\LivewireComponentFinder;
+use Apxcde\LaravelTelltale\Support\LivewireComponentFinder;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
 

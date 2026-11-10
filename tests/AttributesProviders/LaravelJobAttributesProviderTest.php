@@ -10,8 +10,8 @@ use Illuminate\Queue\RedisQueue;
 use Illuminate\Queue\SyncQueue;
 use function Livewire\invade;
 use Spatie\Backtrace\Arguments\ReduceArgumentPayloadAction;
-use Spatie\LaravelFlare\AttributesProviders\LaravelJobAttributesProvider;
-use Spatie\LaravelFlare\Tests\stubs\Jobs\QueueableJob;
+use Apxcde\LaravelTelltale\AttributesProviders\LaravelJobAttributesProvider;
+use Apxcde\LaravelTelltale\Tests\stubs\Jobs\QueueableJob;
 
 function jobAttributes(Job|ShouldQueue $job, ?string $connectionName = null, int $maxChainedJobReportingDepth = 3): array
 {

@@ -1,19 +1,24 @@
 {
-    "name": "spatie/laravel-flare",
-    "description": "Send Laravel errors to Flare",
+    "name": "apxcde/laravel-telltale",
+    "description": "Send Laravel errors, logs and traces to Telltale. A fork of spatie/laravel-flare.",
     "keywords": [
         "error",
         "laravel",
-        "flare"
+        "telltale"
     ],
     "authors": [
         {
             "name": "Spatie",
             "email": "info@spatie.be",
-            "role": "Developer"
+            "role": "Developer of spatie/laravel-flare, which this package is forked from"
+        },
+        {
+            "name": "apxcde",
+            "homepage": "https://github.com/apxcde",
+            "role": "Maintainer of the fork"
         }
     ],
-    "homepage": "https://flareapp.io/",
+    "homepage": "https://github.com/apxcde/laravel-telltale",
     "license": "MIT",
     "require": {
         "php": "^8.2",
@@ -61,21 +66,21 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Spatie\\LaravelFlare\\FlareServiceProvider"
+                "Apxcde\\LaravelTelltale\\TelltaleServiceProvider"
             ],
             "aliases": {
-                "Flare": "Spatie\\LaravelFlare\\Facades\\Flare"
+                "Telltale": "Apxcde\\LaravelTelltale\\Facades\\Telltale"
             }
         }
     },
     "autoload": {
         "psr-4": {
-            "Spatie\\LaravelFlare\\": "src"
+            "Apxcde\\LaravelTelltale\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Spatie\\LaravelFlare\\Tests\\": "tests",
+            "Apxcde\\LaravelTelltale\\Tests\\": "tests",
             "Spatie\\FlareClient\\Tests\\Shared\\": "vendor/spatie/flare-client-php/shared",
             "Workbench\\App\\": "workbench/app/",
             "Workbench\\Database\\Factories\\": "workbench/database/factories/",
@@ -105,9 +110,7 @@
         ]
     },
     "support": {
-        "issues": "https://github.com/spatie/laravel-flare/issues",
-        "forum": "https://twitter.com/flareappio",
-        "source": "https://github.com/spatie/laravel-flare",
-        "docs": "https://flareapp.io/docs/integration/laravel-customizations/introduction"
+        "issues": "https://github.com/apxcde/laravel-telltale/issues",
+        "source": "https://github.com/apxcde/laravel-telltale"
     }
 }

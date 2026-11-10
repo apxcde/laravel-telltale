@@ -1,11 +1,11 @@
 <?php
 
-namespace Spatie\LaravelFlare\FlareMiddleware;
+namespace Apxcde\LaravelTelltale\FlareMiddleware;
 
 use Closure;
 use Spatie\FlareClient\FlareMiddleware\FlareMiddleware;
 use Spatie\FlareClient\ReportFactory;
-use Spatie\LaravelFlare\AttributesProviders\LaravelAttributesProvider;
+use Apxcde\LaravelTelltale\AttributesProviders\LaravelAttributesProvider;
 
 class AddLaravelInformation implements FlareMiddleware
 {

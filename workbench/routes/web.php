@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Monolog\Level;
 use Spatie\FlareClient\Flare;
-use Spatie\LaravelFlare\Facades\Flare as FlareFacade;
+use Apxcde\LaravelTelltale\Facades\Telltale as FlareFacade;
 use Workbench\App\Exceptions\ContextException;
 use Workbench\App\Http\Controllers\InvokableController;
 use Workbench\App\Http\Controllers\ResourceController;

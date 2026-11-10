@@ -5,8 +5,8 @@ use Spatie\FlareClient\Enums\SpanType;
 use Spatie\FlareClient\Tests\Shared\FakeApi;
 use Spatie\FlareClient\Tests\Shared\FakeIds;
 use Spatie\FlareClient\Tests\Shared\FakeTime;
-use Spatie\LaravelFlare\Tests\stubs\Commands\TestCommand;
-use Spatie\LaravelFlare\Tests\stubs\Exceptions\ExpectedException;
+use Apxcde\LaravelTelltale\Tests\stubs\Commands\TestCommand;
+use Apxcde\LaravelTelltale\Tests\stubs\Exceptions\ExpectedException;
 
 beforeEach(function () {
     FakeIds::setup();

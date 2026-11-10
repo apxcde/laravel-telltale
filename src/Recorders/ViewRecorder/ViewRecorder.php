@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Recorders\ViewRecorder;
+namespace Apxcde\LaravelTelltale\Recorders\ViewRecorder;
 
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Foundation\Application;
@@ -12,7 +12,7 @@ use Spatie\FlareClient\Recorders\ViewRecorder\ViewRecorder as BaseViewRecorder;
 use Spatie\FlareClient\Spans\Span;
 use Spatie\FlareClient\Support\BackTracer;
 use Spatie\FlareClient\Tracer;
-use Spatie\LaravelFlare\Support\LivewireComponentFinder;
+use Apxcde\LaravelTelltale\Support\LivewireComponentFinder;
 
 class ViewRecorder extends BaseViewRecorder
 {

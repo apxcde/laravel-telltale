@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Support;
+namespace Apxcde\LaravelTelltale\Support;
 
 use Illuminate\Http\File;
 use Illuminate\Http\UploadedFile;

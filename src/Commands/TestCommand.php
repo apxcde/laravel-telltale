@@ -1,15 +1,15 @@
 <?php
 
-namespace Spatie\LaravelFlare\Commands;
+namespace Apxcde\LaravelTelltale\Commands;
 
 use Illuminate\Console\Command;
-use Spatie\LaravelFlare\Support\LaravelTester;
+use Apxcde\LaravelTelltale\Support\LaravelTester;
 
 class TestCommand extends Command
 {
-    protected $signature = 'flare:test {--errors} {--logs} {--traces}';
+    protected $signature = 'telltale:test {--errors} {--logs} {--traces}';
 
-    protected $description = 'Send a test notification to Flare';
+    protected $description = 'Send a test error, trace and log to Telltale';
 
     public function handle(): int
     {

@@ -1,10 +1,9 @@
 <?php
 
-namespace Spatie\LaravelFlare;
+namespace Apxcde\LaravelTelltale;
 
 use BackedEnum;
 use Illuminate\Support\Arr;
-use Spatie\FlareClient\Api;
 use Spatie\FlareClient\Contracts\FlareCollectType;
 use Spatie\FlareClient\Enums\CollectType;
 use Spatie\FlareClient\FlareConfig as BaseFlareConfig;
@@ -12,32 +11,33 @@ use Spatie\FlareClient\FlareMiddleware\AddLogs;
 use Spatie\FlareClient\Recorders\GlowRecorder\GlowRecorder;
 use Spatie\FlareClient\Resources\Resource;
 use Spatie\FlareClient\Tracer;
-use Spatie\LaravelFlare\ArgumentReducers\CollectionArgumentReducer;
-use Spatie\LaravelFlare\ArgumentReducers\ModelArgumentReducer;
-use Spatie\LaravelFlare\ArgumentReducers\ViewArgumentReducer;
-use Spatie\LaravelFlare\Enums\LaravelCollectType;
-use Spatie\LaravelFlare\Recorders\CacheRecorder\CacheRecorder;
-use Spatie\LaravelFlare\Recorders\CommandRecorder\CommandRecorder;
-use Spatie\LaravelFlare\Recorders\ContextRecorder\ContextRecorder;
-use Spatie\LaravelFlare\Recorders\ExternalHttpRecorder\ExternalHttpRecorder;
-use Spatie\LaravelFlare\Recorders\FilesystemRecorder\FilesystemRecorder;
-use Spatie\LaravelFlare\Recorders\JobRecorder\JobRecorder;
-use Spatie\LaravelFlare\Recorders\LivewireRecorder\LivewireRecorder;
-use Spatie\LaravelFlare\Recorders\QueryRecorder\QueryRecorder;
-use Spatie\LaravelFlare\Recorders\RequestRecorder\RequestRecorder;
-use Spatie\LaravelFlare\Recorders\TransactionRecorder\TransactionRecorder;
-use Spatie\LaravelFlare\Recorders\ViewRecorder\ViewRecorder;
-use Spatie\LaravelFlare\Sampling\SamplingRule;
+use Apxcde\LaravelTelltale\ArgumentReducers\CollectionArgumentReducer;
+use Apxcde\LaravelTelltale\ArgumentReducers\ModelArgumentReducer;
+use Apxcde\LaravelTelltale\ArgumentReducers\ViewArgumentReducer;
+use Apxcde\LaravelTelltale\Enums\LaravelCollectType;
+use Apxcde\LaravelTelltale\Recorders\CacheRecorder\CacheRecorder;
+use Apxcde\LaravelTelltale\Recorders\CommandRecorder\CommandRecorder;
+use Apxcde\LaravelTelltale\Recorders\ContextRecorder\ContextRecorder;
+use Apxcde\LaravelTelltale\Recorders\ExternalHttpRecorder\ExternalHttpRecorder;
+use Apxcde\LaravelTelltale\Recorders\FilesystemRecorder\FilesystemRecorder;
+use Apxcde\LaravelTelltale\Recorders\JobRecorder\JobRecorder;
+use Apxcde\LaravelTelltale\Recorders\LivewireRecorder\LivewireRecorder;
+use Apxcde\LaravelTelltale\Recorders\QueryRecorder\QueryRecorder;
+use Apxcde\LaravelTelltale\Recorders\RequestRecorder\RequestRecorder;
+use Apxcde\LaravelTelltale\Recorders\TransactionRecorder\TransactionRecorder;
+use Apxcde\LaravelTelltale\Recorders\ViewRecorder\ViewRecorder;
+use Apxcde\LaravelTelltale\Sampling\SamplingRule;
 
-class FlareConfig extends BaseFlareConfig
+class TelltaleConfig extends BaseFlareConfig
 {
-    public bool $enableShareButton = true;
+    public bool $enableShareButton = false;
 
     public static function fromLaravelConfig(): self
     {
+        $baseUrl = static::normalizeBaseUrl(config('telltale.base_url'));
         $collects = [];
 
-        foreach (config('flare.collects') as $type => $options) {
+        foreach (config('telltale.collects') as $type => $options) {
             $collectType = CollectType::tryFrom($type) ?? LaravelCollectType::tryFrom($type) ?? null;
 
             if ($collectType === null || ! is_array($options)) {
@@ -51,7 +51,7 @@ class FlareConfig extends BaseFlareConfig
             ];
         }
 
-        $samplerConfig = config('flare.sampler.config') ?? [];
+        $samplerConfig = config('telltale.sampler.config') ?? [];
 
         if (is_array($samplerConfig['rules'] ?? null)) {
             $samplerConfig['rules'] = array_values(array_filter(array_map(
@@ -61,37 +61,52 @@ class FlareConfig extends BaseFlareConfig
         }
 
         $config = new self(
-            apiToken: config('flare.key'),
-            baseUrl: config('flare.base_url', Api::BASE_URL),
+            apiToken: $baseUrl === null ? null : config('telltale.key'),
+            baseUrl: $baseUrl ?? '',
             collects: $collects,
             applicationPath: base_path(),
             applicationName: config('app.name'),
             applicationStage: app()->environment(),
-            censorClientIps: config('flare.censor.client_ips'),
-            censorHeaders: config('flare.censor.headers'),
-            censorBodyFields: config('flare.censor.body_fields'),
-            censorCookies: config('flare.censor.cookies', false),
-            censorSession: config('flare.censor.session', false),
+            censorClientIps: config('telltale.censor.client_ips'),
+            censorHeaders: config('telltale.censor.headers'),
+            censorBodyFields: config('telltale.censor.body_fields'),
+            censorCookies: config('telltale.censor.cookies', false),
+            censorSession: config('telltale.censor.session', false),
             censorCookieNames: array_values(array_filter([
                 config('session.cookie'),
-                ...Arr::wrap(config('flare.censor.cookie_names', ['remember_*'])),
+                ...Arr::wrap(config('telltale.censor.cookie_names', ['remember_*'])),
             ])),
-            report: config('flare.report'),
-            reportErrorLevels: config('flare.report_error_levels'),
-            overriddenGroupings: config('flare.overridden_groupings'),
-            trace: config('flare.trace'),
-            traceLimits: config('flare.trace_limits'),
-            log: config('flare.log', true),
-            minimalLogLevel: config('flare.minimal_log_level'),
-            sender: config('flare.sender.class'),
-            senderConfig: config('flare.sender.config', []),
-            sampler: config('flare.sampler.class'),
+            report: config('telltale.report'),
+            reportErrorLevels: config('telltale.report_error_levels'),
+            overriddenGroupings: config('telltale.overridden_groupings'),
+            trace: config('telltale.trace'),
+            traceLimits: config('telltale.trace_limits'),
+            log: config('telltale.log', true),
+            minimalLogLevel: config('telltale.minimal_log_level'),
+            sender: config('telltale.sender.class'),
+            senderConfig: config('telltale.sender.config', []),
+            sampler: config('telltale.sampler.class'),
             samplerConfig: $samplerConfig,
         );
 
-        $config->enableShareButton = config('flare.enable_share_button', true);
+        $config->enableShareButton = config('telltale.enable_share_button', false);
 
         return $config;
+    }
+
+    /**
+     * Telltale has no hosted default to fall back on, so without a base URL
+     * the client is disabled and nothing is sent anywhere.
+     */
+    protected static function normalizeBaseUrl(mixed $baseUrl): ?string
+    {
+        if (! is_string($baseUrl)) {
+            return null;
+        }
+
+        $baseUrl = rtrim(trim($baseUrl), '/');
+
+        return $baseUrl === '' ? null : $baseUrl;
     }
 
     /**

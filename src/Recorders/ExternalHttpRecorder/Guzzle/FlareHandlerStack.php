@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Recorders\ExternalHttpRecorder\Guzzle;
+namespace Apxcde\LaravelTelltale\Recorders\ExternalHttpRecorder\Guzzle;
 
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Promise\PromiseInterface;

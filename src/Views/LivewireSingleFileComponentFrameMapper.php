@@ -1,10 +1,10 @@
 <?php
 
-namespace Spatie\LaravelFlare\Views;
+namespace Apxcde\LaravelTelltale\Views;
 
 use Illuminate\Contracts\Foundation\Application;
 use ReflectionProperty;
-use Spatie\LaravelFlare\Support\LivewireComponentFinder;
+use Apxcde\LaravelTelltale\Support\LivewireComponentFinder;
 
 class LivewireSingleFileComponentFrameMapper
 {

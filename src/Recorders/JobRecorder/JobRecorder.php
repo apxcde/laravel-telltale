@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Recorders\JobRecorder;
+namespace Apxcde\LaravelTelltale\Recorders\JobRecorder;
 
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Queue\Events\JobExceptionOccurred;
@@ -21,8 +21,8 @@ use Spatie\FlareClient\Support\BackTracer;
 use Spatie\FlareClient\Support\Ids;
 use Spatie\FlareClient\Support\Lifecycle;
 use Spatie\FlareClient\Tracer;
-use Spatie\LaravelFlare\AttributesProviders\LaravelJobAttributesProvider;
-use Spatie\LaravelFlare\Jobs\SendFlarePayload;
+use Apxcde\LaravelTelltale\AttributesProviders\LaravelJobAttributesProvider;
+use Apxcde\LaravelTelltale\Jobs\SendFlarePayload;
 
 class JobRecorder extends BaseJobRecorder
 {

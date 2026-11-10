@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Views;
+namespace Apxcde\LaravelTelltale\Views;
 
 use Illuminate\View\Compilers\BladeCompiler;
 use Throwable;

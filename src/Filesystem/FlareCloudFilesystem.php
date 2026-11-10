@@ -1,9 +1,9 @@
 <?php
 
-namespace Spatie\LaravelFlare\Filesystem;
+namespace Apxcde\LaravelTelltale\Filesystem;
 
 use Illuminate\Contracts\Filesystem\Cloud;
-use Spatie\LaravelFlare\Filesystem\Concerns\WrapsCloudFilesystem;
+use Apxcde\LaravelTelltale\Filesystem\Concerns\WrapsCloudFilesystem;
 
 class FlareCloudFilesystem implements Cloud
 {

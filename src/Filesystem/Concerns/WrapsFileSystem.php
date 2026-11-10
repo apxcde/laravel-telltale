@@ -1,15 +1,15 @@
 <?php
 
-namespace Spatie\LaravelFlare\Filesystem\Concerns;
+namespace Apxcde\LaravelTelltale\Filesystem\Concerns;
 
 use Closure;
 use Illuminate\Http\File;
 use Illuminate\Http\UploadedFile;
 use Psr\Http\Message\StreamInterface;
 use Spatie\FlareClient\Spans\Span;
-use Spatie\LaravelFlare\Facades\Flare;
-use Spatie\LaravelFlare\Recorders\FilesystemRecorder\FilesystemRecorder;
-use Spatie\LaravelFlare\Support\Humanizer;
+use Apxcde\LaravelTelltale\Facades\Telltale;
+use Apxcde\LaravelTelltale\Recorders\FilesystemRecorder\FilesystemRecorder;
+use Apxcde\LaravelTelltale\Support\Humanizer;
 
 trait WrapsFileSystem
 {
@@ -455,7 +455,7 @@ trait WrapsFileSystem
         Closure $start,
         ?Closure $end = null,
     ): mixed {
-        $recorder = Flare::filesystem();
+        $recorder = Telltale::filesystem();
 
         if ($recorder === null) {
             return $this->filesystem->{$method}(...$arguments);

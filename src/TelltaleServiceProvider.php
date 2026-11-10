@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare;
+namespace Apxcde\LaravelTelltale;
 
 use Closure;
 use Illuminate\Contracts\Container\Container;
@@ -34,30 +34,30 @@ use Spatie\FlareClient\Support\StacktraceMapper;
 use Spatie\FlareClient\Time\Time;
 use Spatie\FlareClient\Time\TimeHelper;
 use Spatie\FlareClient\Tracer;
-use Spatie\LaravelFlare\AttributesProviders\LaravelAttributesProvider;
-use Spatie\LaravelFlare\Commands\TestCommand;
-use Spatie\LaravelFlare\Enums\SpanType as LaravelSpanType;
-use Spatie\LaravelFlare\Http\Middleware\FlareTracingMiddleware;
-use Spatie\LaravelFlare\Http\RouteDispatchers\CallableRouteDispatcher;
-use Spatie\LaravelFlare\Http\RouteDispatchers\ControllerRouteDispatcher;
-use Spatie\LaravelFlare\Support\BackTracer;
-use Spatie\LaravelFlare\Support\CollectsResolver;
-use Spatie\LaravelFlare\Support\FlareLogHandler;
-use Spatie\LaravelFlare\Support\LaravelStacktraceMapper;
-use Spatie\LaravelFlare\Support\LivewireComponentFinder;
-use Spatie\LaravelFlare\Support\Telemetry;
-use Spatie\LaravelFlare\Views\LivewireSingleFileComponentFrameMapper;
-use Spatie\LaravelFlare\Views\ViewExceptionMapper;
-use Spatie\LaravelFlare\Views\ViewFrameMapper;
+use Apxcde\LaravelTelltale\AttributesProviders\LaravelAttributesProvider;
+use Apxcde\LaravelTelltale\Commands\TestCommand;
+use Apxcde\LaravelTelltale\Enums\SpanType as LaravelSpanType;
+use Apxcde\LaravelTelltale\Http\Middleware\FlareTracingMiddleware;
+use Apxcde\LaravelTelltale\Http\RouteDispatchers\CallableRouteDispatcher;
+use Apxcde\LaravelTelltale\Http\RouteDispatchers\ControllerRouteDispatcher;
+use Apxcde\LaravelTelltale\Support\BackTracer;
+use Apxcde\LaravelTelltale\Support\CollectsResolver;
+use Apxcde\LaravelTelltale\Support\FlareLogHandler;
+use Apxcde\LaravelTelltale\Support\LaravelStacktraceMapper;
+use Apxcde\LaravelTelltale\Support\LivewireComponentFinder;
+use Apxcde\LaravelTelltale\Support\Telemetry;
+use Apxcde\LaravelTelltale\Views\LivewireSingleFileComponentFrameMapper;
+use Apxcde\LaravelTelltale\Views\ViewExceptionMapper;
+use Apxcde\LaravelTelltale\Views\ViewFrameMapper;
 
-class FlareServiceProvider extends ServiceProvider
+class TelltaleServiceProvider extends ServiceProvider
 {
-    /** @var array<int, Closure(FlareConfig):void> */
+    /** @var array<int, Closure(TelltaleConfig):void> */
     protected static array $configurationCallbacks = [];
 
     protected FlareProvider $provider;
 
-    protected FlareConfig $config;
+    protected TelltaleConfig $config;
 
     protected ?Flare $flare = null;
 
@@ -108,7 +108,7 @@ class FlareServiceProvider extends ServiceProvider
     }
 
     /**
-     * @param Closure(FlareConfig):void $callback
+     * @param Closure(TelltaleConfig):void $callback
      */
     public static function configure(Closure $callback): void
     {
@@ -122,21 +122,21 @@ class FlareServiceProvider extends ServiceProvider
 
     public function register(): void
     {
-        if (! $this->app->has(FlareConfig::class)) {
-            $this->mergeConfigFrom(__DIR__.'/../config/flare.php', 'flare');
+        if (! $this->app->has(TelltaleConfig::class)) {
+            $this->mergeConfigFrom(__DIR__.'/../config/telltale.php', 'telltale');
 
-            $this->config = FlareConfig::fromLaravelConfig();
+            $this->config = TelltaleConfig::fromLaravelConfig();
 
             foreach (static::$configurationCallbacks as $callback) {
                 $callback($this->config);
             }
 
-            $this->app->singleton(FlareConfig::class, fn () => $this->config);
+            $this->app->singleton(TelltaleConfig::class, fn () => $this->config);
         } else {
-            $this->config = $this->app->make(FlareConfig::class);
+            $this->config = $this->app->make(TelltaleConfig::class);
         }
 
-        $this->app->alias(FlareConfig::class, \Spatie\FlareClient\FlareConfig::class);
+        $this->app->alias(TelltaleConfig::class, \Spatie\FlareClient\FlareConfig::class);
 
         $this->provider = new FlareProvider(
             config: $this->config,
@@ -202,8 +202,8 @@ class FlareServiceProvider extends ServiceProvider
             ]);
 
             $this->publishes([
-                __DIR__.'/../config/flare.php.stub' => config_path('flare.php'),
-            ], 'flare-config');
+                __DIR__.'/../config/telltale.php.stub' => config_path('telltale.php'),
+            ], 'telltale-config');
         }
 
         $this->provider->boot();
@@ -261,7 +261,7 @@ class FlareServiceProvider extends ServiceProvider
     {
         $mode = $this->provider->mode;
 
-        Log::extend('flare', function ($app, $config) use ($mode) {
+        Log::extend('telltale', function ($app, $config) use ($mode) {
             if ($mode === FlareMode::Disabled) {
                 return (new Logger('Flare'))->pushHandler(new NullHandler());
             }

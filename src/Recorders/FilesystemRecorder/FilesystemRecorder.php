@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Recorders\FilesystemRecorder;
+namespace Apxcde\LaravelTelltale\Recorders\FilesystemRecorder;
 
 use DateTimeInterface;
 use Illuminate\Container\Container;
@@ -10,9 +10,9 @@ use Spatie\FlareClient\Recorders\FilesystemRecorder\FilesystemRecorder as BaseFi
 use Spatie\FlareClient\Spans\Span;
 use Spatie\FlareClient\Support\BackTracer;
 use Spatie\FlareClient\Tracer;
-use Spatie\LaravelFlare\Enums\LaravelFilesystemOperation;
-use Spatie\LaravelFlare\Filesystem\FlareFilesystemManager;
-use Spatie\LaravelFlare\Support\Humanizer;
+use Apxcde\LaravelTelltale\Enums\LaravelFilesystemOperation;
+use Apxcde\LaravelTelltale\Filesystem\FlareFilesystemManager;
+use Apxcde\LaravelTelltale\Support\Humanizer;
 
 class FilesystemRecorder extends BaseFilesystemRecorder
 {
@@ -36,7 +36,7 @@ class FilesystemRecorder extends BaseFilesystemRecorder
     public static function registered(Application $container, array $config): void
     {
         $shouldWrapDisks = ($config['track_all_disks'] ?? static::DEFAULT_TRACK_ALL_DISKS)
-            || Arr::first(config('filesystems.disks'), fn ($disk) => is_array($disk) && array_key_exists('flare', $disk)) !== null;
+            || Arr::first(config('filesystems.disks'), fn ($disk) => is_array($disk) && array_key_exists('telltale', $disk)) !== null;
 
         if ($shouldWrapDisks) {
             $container->singleton('filesystem', function () use ($config) {

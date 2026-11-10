@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Recorders\TransactionRecorder;
+namespace Apxcde\LaravelTelltale\Recorders\TransactionRecorder;
 
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Events\TransactionBeginning;

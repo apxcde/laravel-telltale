@@ -1,8 +1,8 @@
 <?php
 
-namespace Spatie\LaravelFlare\Filesystem\Concerns;
+namespace Apxcde\LaravelTelltale\Filesystem\Concerns;
 
-use Spatie\LaravelFlare\Recorders\FilesystemRecorder\FilesystemRecorder;
+use Apxcde\LaravelTelltale\Recorders\FilesystemRecorder\FilesystemRecorder;
 
 trait WrapsCloudFilesystem
 {

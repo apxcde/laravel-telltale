@@ -1,10 +1,10 @@
 <?php
 
-namespace Spatie\LaravelFlare\Support;
+namespace Apxcde\LaravelTelltale\Support;
 
 use Spatie\FlareClient\Support\Telemetry as BaseTelemetry;
 
 class Telemetry extends BaseTelemetry
 {
-    public const NAME = 'spatie/laravel-flare';
+    public const NAME = 'apxcde/laravel-telltale';
 }

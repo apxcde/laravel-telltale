@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\AttributesProviders;
+namespace Apxcde\LaravelTelltale\AttributesProviders;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;

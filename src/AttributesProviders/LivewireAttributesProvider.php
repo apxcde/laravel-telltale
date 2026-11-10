@@ -1,12 +1,12 @@
 <?php
 
-namespace Spatie\LaravelFlare\AttributesProviders;
+namespace Apxcde\LaravelTelltale\AttributesProviders;
 
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Spatie\FlareClient\Contracts\AttributesProvider;
-use Spatie\LaravelFlare\Support\LivewireComponentFinder;
+use Apxcde\LaravelTelltale\Support\LivewireComponentFinder;
 
 class LivewireAttributesProvider implements AttributesProvider
 {

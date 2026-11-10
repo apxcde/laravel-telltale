@@ -1,12 +1,12 @@
 <?php
 
-namespace Spatie\LaravelFlare\Senders;
+namespace Apxcde\LaravelTelltale\Senders;
 
 use Closure;
 use Spatie\FlareClient\Enums\FlareEntityType;
 use Spatie\FlareClient\Senders\Sender;
 use Spatie\FlareClient\Senders\Support\Response;
-use Spatie\LaravelFlare\Jobs\SendFlarePayload;
+use Apxcde\LaravelTelltale\Jobs\SendFlarePayload;
 
 class LaravelVaporSender implements Sender
 {

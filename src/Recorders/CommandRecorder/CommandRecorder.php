@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Recorders\CommandRecorder;
+namespace Apxcde\LaravelTelltale\Recorders\CommandRecorder;
 
 use Illuminate\Console\Events\CommandFinished;
 use Illuminate\Console\Events\CommandStarting;
@@ -9,7 +9,7 @@ use Spatie\FlareClient\EntryPoint\EntryPointResolver;
 use Spatie\FlareClient\Recorders\CommandRecorder\CommandRecorder as BaseCommandRecorder;
 use Spatie\FlareClient\Support\BackTracer;
 use Spatie\FlareClient\Tracer;
-use Spatie\LaravelFlare\AttributesProviders\LaravelCommandAttributesProvider;
+use Apxcde\LaravelTelltale\AttributesProviders\LaravelCommandAttributesProvider;
 
 class CommandRecorder extends BaseCommandRecorder
 {
@@ -56,7 +56,7 @@ class CommandRecorder extends BaseCommandRecorder
             'octane:reload',
             'vapor:work',
             'serve',
-            'flare:test',
+            'telltale:test',
         ];
     }
 }

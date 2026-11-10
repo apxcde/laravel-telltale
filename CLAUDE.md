@@ -4,7 +4,7 @@ Guidance for working in this repository.
 
 ## Architecture
 
-`spatie/laravel-flare` is the Laravel adapter for `spatie/flare-client-php`. The client package owns all framework-agnostic behaviour (reporting, tracing, recorders, senders, the HTTP API, the lifecycle state machine). This package adds the Laravel-specific glue.
+`apxcde/laravel-telltale` is the Laravel adapter for `spatie/flare-client-php`, forked from `spatie/laravel-flare`. It reports to a Telltale installation, which speaks Flare's wire protocol. The fork does not follow upstream releases. The client package owns all framework-agnostic behaviour (reporting, tracing, recorders, senders, the HTTP API, the lifecycle state machine). This package adds the Laravel-specific glue.
 
 ### Package boundary
 
@@ -13,17 +13,17 @@ Belongs in `spatie/flare-client-php`:
 - Core abstractions: `Flare`, `Tracer`, `FlareProvider`, the base `FlareConfig`, `Lifecycle`, `Report`, `Span`, plus recorders/middleware/senders that only need PHP.
 - The `Tester` base class.
 
-Belongs in `spatie/laravel-flare`:
+Belongs in `apxcde/laravel-telltale`:
 - Anything that touches `Illuminate\*`, facades, Eloquent, Blade, Livewire, Octane, or Vapor.
 - Laravel subclasses of client base classes (e.g. `LaravelStacktraceMapper`, `LaravelTester`, `LaravelHttpSender`, recorders under `src/Recorders/` that consume Laravel events).
 - The service provider that wires everything into the container.
 
 When adding behaviour, default to extending an existing client class on the Laravel side rather than spinning up a new value object. If a feature is useful outside Laravel, push it down into the client package and subclass here.
 
-### Bootstrapping (`FlareServiceProvider`)
+### Bootstrapping (`TelltaleServiceProvider`)
 
 `register()`:
-1. Merges `config/flare.php` and hydrates a `FlareConfig` via `FlareConfig::fromLaravelConfig()`. The Laravel `FlareConfig` extends the client's `FlareConfig` and is aliased to the base class in the container.
+1. Merges `config/telltale.php` and hydrates a `TelltaleConfig` via `TelltaleConfig::fromLaravelConfig()`. `TelltaleConfig` extends the client's `FlareConfig` and is aliased to the base class in the container.
 2. Constructs a `FlareProvider` (from the client package) with the config, the container, and a handful of Laravel-specific closures (recorder registration callback, subtask detection, graceful span ender).
 3. Registers Laravel-only singletons (`BackTracer`, `LaravelStacktraceMapper`, view frame mappers, Livewire support).
 4. Extends `Resource` and `Scope` with Laravel telemetry attributes.
@@ -39,10 +39,17 @@ When adding behaviour, default to extending an existing client class on the Lara
 
 ### Config hydration
 
-`FlareConfig::fromLaravelConfig()` reads `config/flare.php` into a typed `FlareConfig`. Two rules apply:
+`TelltaleConfig::fromLaravelConfig()` reads `config/telltale.php` into a typed `TelltaleConfig`. Three rules apply:
 
 1. Helpers called from a config file must never throw. Return `null` on bad input and filter at the call site. Config files load extremely early; an exception there breaks the whole app.
 2. Unknown `collects` types are silently skipped via `tryFrom`. This is deliberate so configs can reference recorders that may not exist in older versions.
+3. An empty `base_url` disables the client: `fromLaravelConfig()` passes a null API token, which puts the client's `FlareProvider` in disabled mode. There is no fallback to flareapp.io.
+
+### Naming
+
+Names an application sees are Telltale's: the `Apxcde\LaravelTelltale` namespace, `config/telltale.php`, the `telltale` log driver and filesystem disk key, the `Telltale` facade, `TelltaleServiceProvider`, `TelltaleConfig`, `telltale:test` and the `TELLTALE_*` env variables. Internal classes keep their upstream names (`FlareTracingMiddleware`, `FlareLogHandler`, `SendFlarePayload`, the `FlareMiddleware/` folder), as does everything in the client package.
+
+Never rename anything that goes over the wire: the `/v1/*` endpoints, the `x-api-token` header, and attribute names such as `flare.span_type` and `flare.entry_point.*`. Telltale accepts the stock Flare clients too.
 
 ### Subsystems (`src/`)
 
@@ -53,7 +60,7 @@ When adding behaviour, default to extending an existing client class on the Lara
 - `ArgumentReducers/`: turn Laravel-specific argument types (Eloquent models, collections, views) into reportable representations.
 - `AttributesProviders/`: produce OpenTelemetry attributes for requests, routes, jobs, commands, users, Livewire components.
 - `Http/`: `FlareTracingMiddleware` plus route dispatcher wrappers that open spans around controller/closure dispatch.
-- `Commands/`: `TestCommand` (`flare:test`).
+- `Commands/`: `TestCommand` (`telltale:test`).
 - `Jobs/SendFlarePayload.php`: queued job for async sending.
 - `Views/`: Blade source map compiler, view exception mapper, view/Livewire frame mappers. Used to translate compiled-Blade stack frames back to source.
 - `Support/`: small Laravel-aware utilities (`BackTracer`, `CollectsResolver`, `FlareLogHandler`, `Telemetry`, `LivewireComponentFinder`, `LaravelStacktraceMapper`).

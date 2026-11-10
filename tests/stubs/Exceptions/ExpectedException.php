@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Tests\stubs\Exceptions;
+namespace Apxcde\LaravelTelltale\Tests\stubs\Exceptions;
 
 use Exception;
 

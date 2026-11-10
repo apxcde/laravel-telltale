@@ -1,11 +1,11 @@
 <?php
 
-namespace Spatie\LaravelFlare\Filesystem;
+namespace Apxcde\LaravelTelltale\Filesystem;
 
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Filesystem\FilesystemManager;
-use Spatie\LaravelFlare\Recorders\FilesystemRecorder\FilesystemRecorder;
+use Apxcde\LaravelTelltale\Recorders\FilesystemRecorder\FilesystemRecorder;
 use Throwable;
 
 class FlareFilesystemManager extends FilesystemManager
@@ -38,9 +38,9 @@ class FlareFilesystemManager extends FilesystemManager
                 return $filesystem;
             }
 
-            $trace = $config['flare']['trace'] ?? $this->flareConfig['trace'] ?? FilesystemRecorder::DEFAULT_WITH_TRACES;
-            $report = $config['flare']['report'] ?? $this->flareConfig['report'] ?? FilesystemRecorder::DEFAULT_WITH_ERRORS;
-            $maxReports = $config['flare']['max_reported'] ?? $this->flareConfig['max_reported'] ?? FilesystemRecorder::DEFAULT_MAX_ITEMS_WITH_ERRORS;
+            $trace = $config['telltale']['trace'] ?? $this->flareConfig['trace'] ?? FilesystemRecorder::DEFAULT_WITH_TRACES;
+            $report = $config['telltale']['report'] ?? $this->flareConfig['report'] ?? FilesystemRecorder::DEFAULT_WITH_ERRORS;
+            $maxReports = $config['telltale']['max_reported'] ?? $this->flareConfig['max_reported'] ?? FilesystemRecorder::DEFAULT_MAX_ITEMS_WITH_ERRORS;
 
             if ($filesystem instanceof FilesystemAdapter) {
                 return new FlareFilesystemAdapter($filesystem, $trace, $report, $maxReports);
@@ -64,6 +64,6 @@ class FlareFilesystemManager extends FilesystemManager
 
     protected function shouldWrapFilesystem(?array $config): bool
     {
-        return ($this->flareConfig['track_all_disks'] ?? false) || ($config !== null && array_key_exists('flare', $config));
+        return ($this->flareConfig['track_all_disks'] ?? false) || ($config !== null && array_key_exists('telltale', $config));
     }
 }

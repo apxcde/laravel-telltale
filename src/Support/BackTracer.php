@@ -1,10 +1,10 @@
 <?php
 
-namespace Spatie\LaravelFlare\Support;
+namespace Apxcde\LaravelTelltale\Support;
 
 use Spatie\Backtrace\Frame;
 use Spatie\FlareClient\Support\BackTracer as BaseBackTracer;
-use Spatie\LaravelFlare\Views\ViewFrameMapper;
+use Apxcde\LaravelTelltale\Views\ViewFrameMapper;
 
 class BackTracer extends BaseBackTracer
 {

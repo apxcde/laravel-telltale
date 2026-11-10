@@ -1,10 +1,10 @@
 <?php
 
-namespace Spatie\LaravelFlare\Tests\stubs\Commands;
+namespace Apxcde\LaravelTelltale\Tests\stubs\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
-use Spatie\LaravelFlare\Tests\stubs\Exceptions\ExpectedException;
+use Apxcde\LaravelTelltale\Tests\stubs\Exceptions\ExpectedException;
 
 class TestCommand extends Command
 {

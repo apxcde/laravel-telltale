@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Recorders\ContextRecorder;
+namespace Apxcde\LaravelTelltale\Recorders\ContextRecorder;
 
 use Illuminate\Log\Context\Repository;
 use Spatie\FlareClient\Recorders\ContextRecorder\ContextRecorder as BaseContextRecorder;

@@ -1,9 +1,9 @@
 <?php
 
-namespace Spatie\LaravelFlare\Tests\TestClasses;
+namespace Apxcde\LaravelTelltale\Tests\TestClasses;
 
 use Livewire\LivewireManager;
-use Spatie\LaravelFlare\Support\LivewireComponentFinder;
+use Apxcde\LaravelTelltale\Support\LivewireComponentFinder;
 
 class FakeLivewireManager extends LivewireManager
 {

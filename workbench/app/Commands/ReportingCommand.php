@@ -4,7 +4,7 @@ namespace Workbench\App\Commands;
 
 use Exception;
 use Illuminate\Console\Command;
-use Spatie\LaravelFlare\Facades\Flare;
+use Apxcde\LaravelTelltale\Facades\Telltale;
 
 class ReportingCommand extends Command
 {
@@ -28,7 +28,7 @@ class ReportingCommand extends Command
     public function handle()
     {
         foreach (range(1, 10) as $index) {
-            Flare::report(new Exception('Test'));
+            Telltale::report(new Exception('Test'));
         }
     }
 }

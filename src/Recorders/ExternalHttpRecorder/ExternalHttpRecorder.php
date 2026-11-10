@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Recorders\ExternalHttpRecorder;
+namespace Apxcde\LaravelTelltale\Recorders\ExternalHttpRecorder;
 
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Spatie\FlareClient\Flare;

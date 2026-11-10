@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\ArgumentReducers;
+namespace Apxcde\LaravelTelltale\ArgumentReducers;
 
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Backtrace\Arguments\ReducedArgument\ReducedArgument;

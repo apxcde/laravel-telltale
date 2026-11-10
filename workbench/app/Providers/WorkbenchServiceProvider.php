@@ -6,8 +6,8 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Orchestra\Testbench\Http\Middleware\VerifyCsrfToken;
-use Spatie\LaravelFlare\Facades\Flare;
-use Spatie\LaravelFlare\Recorders\FilesystemRecorder\FilesystemRecorder;
+use Apxcde\LaravelTelltale\Facades\Telltale;
+use Apxcde\LaravelTelltale\Recorders\FilesystemRecorder\FilesystemRecorder;
 use Workbench\App\Livewire\Counter;
 use Workbench\App\Livewire\Inline;
 use Workbench\App\Livewire\LazyComponent;
@@ -32,7 +32,7 @@ class WorkbenchServiceProvider extends ServiceProvider
             [
                 'driver' => 'local',
                 'root' => config('filesystems.disks.local.root'),
-                'flare' => true,
+                'telltale' => true,
             ]
         );
 
@@ -50,7 +50,7 @@ class WorkbenchServiceProvider extends ServiceProvider
     {
         if ($this->runningOnLaravel10()) {
             // Laravel 11+ wires this through bootstrap/app.php.
-            Flare::handles();
+            Telltale::handles();
 
             // Laravel 11+ disables CSRF through bootstrap/app.php.
             $this->app['router']->removeMiddlewareFromGroup('web', VerifyCsrfToken::class);

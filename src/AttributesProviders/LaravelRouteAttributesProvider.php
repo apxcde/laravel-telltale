@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\AttributesProviders;
+namespace Apxcde\LaravelTelltale\AttributesProviders;
 
 use Closure;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +12,7 @@ use ReflectionFunction;
 use Spatie\FlareClient\Contracts\EntryPointHandlerProvider;
 use Spatie\FlareClient\Contracts\RouteAttributesProvider;
 use Spatie\FlareClient\Contracts\SamplingAttributesProvider;
-use Spatie\LaravelFlare\Enums\LaravelRouteActionType;
+use Apxcde\LaravelTelltale\Enums\LaravelRouteActionType;
 use Throwable;
 
 class LaravelRouteAttributesProvider implements RouteAttributesProvider, EntryPointHandlerProvider, SamplingAttributesProvider

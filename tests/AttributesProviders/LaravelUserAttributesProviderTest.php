@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Auth\User;
-use Spatie\LaravelFlare\AttributesProviders\LaravelUserAttributesProvider;
+use Apxcde\LaravelTelltale\AttributesProviders\LaravelUserAttributesProvider;
 
 it('returns the authenticated user', function () {
     $user = new User();

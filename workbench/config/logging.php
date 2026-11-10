@@ -11,7 +11,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single', 'flare'],
+            'channels' => ['single', 'telltale'],
             'ignore_exceptions' => false,
         ],
 
@@ -22,8 +22,8 @@ return [
             'replace_placeholders' => true,
         ],
 
-        'flare' => [
-            'driver' => 'flare',
+        'telltale' => [
+            'driver' => 'telltale',
         ],
     ],
 ];

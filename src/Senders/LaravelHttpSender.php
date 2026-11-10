@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\LaravelFlare\Senders;
+namespace Apxcde\LaravelTelltale\Senders;
 
 use Closure;
 use Illuminate\Http\Client\Response as HttpResponse;

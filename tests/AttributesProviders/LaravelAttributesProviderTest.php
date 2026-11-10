@@ -1,7 +1,7 @@
 <?php
 
 use Spatie\FlareClient\Enums\Framework;
-use Spatie\LaravelFlare\AttributesProviders\LaravelAttributesProvider;
+use Apxcde\LaravelTelltale\AttributesProviders\LaravelAttributesProvider;
 
 it('can provide attributes', function () {
     config()->set('app.debug', true);

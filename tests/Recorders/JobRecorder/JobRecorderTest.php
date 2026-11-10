@@ -18,8 +18,8 @@ use Spatie\FlareClient\Support\Ids;
 use Spatie\FlareClient\Support\Lifecycle;
 use Spatie\FlareClient\Tests\Shared\FakeApi;
 use Spatie\FlareClient\Tests\Shared\FakeIds;
-use Spatie\LaravelFlare\Recorders\JobRecorder\JobRecorder;
-use Spatie\LaravelFlare\Sampling\SamplingRule;
+use Apxcde\LaravelTelltale\Recorders\JobRecorder\JobRecorder;
+use Apxcde\LaravelTelltale\Sampling\SamplingRule;
 
 it('can trace jobs executions', function () {
     $flare = setupFlare(alwaysSampleTraces: true);
