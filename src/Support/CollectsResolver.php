@@ -97,7 +97,29 @@ class CollectsResolver extends BaseCollectsResolver
 
     protected function exceptionContext(array $options): void
     {
+        $options['include_query_bindings'] ??= $this->includesQueryBindings();
+
         $this->addMiddleware(AddExceptionContextInformation::class, $options);
+    }
+
+    /**
+     * Whether the queries collect sends bound values, so a failed query's message follows the same setting.
+     */
+    protected function includesQueryBindings(): bool
+    {
+        foreach ($this->config->collects as $collect) {
+            if ($collect['type'] !== CollectType::Queries) {
+                continue;
+            }
+
+            if ($collect['ignored'] ?? false) {
+                return false;
+            }
+
+            return (bool) ($collect['options']['include_bindings'] ?? QueryRecorder::DEFAULT_INCLUDE_BINDINGS);
+        }
+
+        return false;
     }
 
     protected function handledExceptions(array $options): void

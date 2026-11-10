@@ -11,6 +11,17 @@ This package is a fork of [`spatie/laravel-flare`](https://github.com/spatie/lar
 - **No default server.** Nothing is sent unless both `TELLTALE_KEY` and `TELLTALE_BASE_URL` are set. The package never falls back to flareapp.io.
 - **Tracing is off by default.** Enable it with `TELLTALE_TRACE=true`.
 - **The error page's Share button is off by default**, because it uploads the error to flareapp.io.
+- **Query bindings are not sent by default**, because bound values often hold personal data. Queries are reported with their `?` placeholders, and the message of a failed query is rewritten the same way. To send the values, set `include_bindings` to `true` for the queries collect in `config/telltale.php`:
+
+  ```php
+  'collects' => \Apxcde\LaravelTelltale\TelltaleConfig::defaultCollects(
+      extra: [
+          \Spatie\FlareClient\Enums\CollectType::Queries->value => ['include_bindings' => true],
+      ],
+  ),
+  ```
+
+  A value the database quotes in its own error text, such as the duplicate value in a unique key violation, is still part of the message.
 
 The wire protocol is unchanged. The package still depends on [`spatie/flare-client-php`](https://github.com/spatie/flare-client-php), which builds and sends the payloads, so its classes keep the `Spatie\FlareClient` namespace and the payloads keep Flare's attribute names (for example `flare.entry_point.type`).
 

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\QueryException;
 use Apxcde\LaravelTelltale\Facades\Telltale;
+use Apxcde\LaravelTelltale\TelltaleConfig;
 
 it('will add query information with a query exception', function () {
     setupFlare();
@@ -21,8 +22,28 @@ it('will add query information with a query exception', function () {
     expect($attributes['flare.exception.db_statement'])->toBe($sql);
 });
 
-it('rewrites the query exception message with quoted string bindings', function () {
+it('takes the bound values out of the query exception message unless the application opts in', function () {
     setupFlare();
+
+    $exception = new QueryException(
+        'sqlite',
+        'select * from "contacts" where "phone" = ?',
+        ['+15550001111'],
+        new Exception('SQLSTATE[HY000]: boom'),
+    );
+
+    $originalMessage = $exception->getMessage();
+
+    $report = Telltale::report($exception)->toArray();
+
+    expect($report['message'])->toBe(
+        'SQLSTATE[HY000]: boom (Connection: sqlite, SQL: select * from "contacts" where "phone" = ?)'
+    );
+    expect($exception->getMessage())->toBe($originalMessage)->toContain('+15550001111');
+});
+
+it('rewrites the query exception message with quoted string bindings', function () {
+    setupFlare(fn (TelltaleConfig $config) => $config->collectQueries(includeBindings: true));
 
     $exception = new QueryException(
         'sqlite',
@@ -42,7 +63,7 @@ it('rewrites the query exception message with quoted string bindings', function 
 });
 
 it('correctly substitutes every supported binding type', function () {
-    setupFlare();
+    setupFlare(fn (TelltaleConfig $config) => $config->collectQueries(includeBindings: true));
 
     $sql = 'select * from "t" where "a" = ? and "b" = ? and "c" = ? and "d" = ? and "e" = ? and "f" = ? and "g" is ? and "h" = ? and "i" = ?';
     $bindings = ['hello', "O'Brien", 42, 3.14, true, false, null, 0, ''];
