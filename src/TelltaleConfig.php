@@ -348,6 +348,26 @@ class TelltaleConfig extends BaseFlareConfig
         );
     }
 
+    public function collectQueries(
+        bool $withTraces = QueryRecorder::DEFAULT_WITH_TRACES,
+        bool $withErrors = QueryRecorder::DEFAULT_WITH_ERRORS,
+        ?int $maxItemsWithErrors = QueryRecorder::DEFAULT_MAX_ITEMS_WITH_ERRORS,
+        bool $includeBindings = QueryRecorder::DEFAULT_INCLUDE_BINDINGS,
+        bool $findOrigin = QueryRecorder::DEFAULT_FIND_ORIGIN,
+        ?int $findOriginThreshold = QueryRecorder::DEFAULT_FIND_ORIGIN_THRESHOLD,
+        array $extra = [],
+    ): static {
+        return parent::collectQueries(
+            withTraces: $withTraces,
+            withErrors: $withErrors,
+            maxItemsWithErrors: $maxItemsWithErrors,
+            includeBindings: $includeBindings,
+            findOrigin: $findOrigin,
+            findOriginThreshold: $findOriginThreshold,
+            extra: $extra,
+        );
+    }
+
     public function collectFilesystemOperations(
         bool $withTraces = FilesystemRecorder::DEFAULT_WITH_TRACES,
         bool $withErrors = FilesystemRecorder::DEFAULT_WITH_ERRORS,

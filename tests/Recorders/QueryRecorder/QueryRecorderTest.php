@@ -24,7 +24,7 @@ beforeEach(function () {
 });
 
 it('traces queries', function () {
-    $flare = setupFlare(alwaysSampleTraces: true);
+    $flare = setupFlare(fn (TelltaleConfig $config) => $config->collectQueries(includeBindings: true), alwaysSampleTraces: true);
 
     $flare->tracer->startTrace();
 
@@ -46,7 +46,7 @@ it('traces queries', function () {
 });
 
 it('can report queries', function () {
-    $flare = setupFlare();
+    $flare = setupFlare(fn (TelltaleConfig $config) => $config->collectQueries(includeBindings: true));
 
     $flare->tracer->startTrace();
 
@@ -67,8 +67,8 @@ it('can report queries', function () {
         ]);
 });
 
-it('can stop recording bindings', function () {
-    $flare = setupFlare(fn (TelltaleConfig $config) => $config->collectQueries(includeBindings: false));
+it('does not record bindings unless the application opts in', function () {
+    $flare = setupFlare();
 
     $flare->tracer->startTrace();
 

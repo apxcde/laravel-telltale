@@ -13,6 +13,14 @@ use Throwable;
 
 class AddExceptionContextInformation implements FlareMiddleware
 {
+    /**
+     * @param array{include_query_bindings?: bool} $config
+     */
+    public function __construct(
+        protected array $config = [],
+    ) {
+    }
+
     public function handle(ReportFactory $report, Closure $next): ReportFactory
     {
         $this->addUserDefinedContext($report);
@@ -52,6 +60,13 @@ class AddExceptionContextInformation implements FlareMiddleware
 
         /** @var QueryException $throwable */
         $throwable = $report->throwable;
+
+        if (! ($this->config['include_query_bindings'] ?? false)) {
+            // Laravel puts the bound values in the message, so they are taken out again.
+            $report->message = $matches[1].$throwable->getSql().')';
+
+            return;
+        }
 
         $bindings = array_map(fn ($value) => match (true) {
             $value === null => 'NULL',
