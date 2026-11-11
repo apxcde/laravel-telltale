@@ -13,6 +13,8 @@ use Spatie\FlareClient\Resources\Resource;
 use Spatie\FlareClient\Tracer;
 use Apxcde\LaravelTelltale\ArgumentReducers\CollectionArgumentReducer;
 use Apxcde\LaravelTelltale\ArgumentReducers\ModelArgumentReducer;
+use Apxcde\LaravelTelltale\ArgumentReducers\RequestArgumentReducer;
+use Spatie\Backtrace\Arguments\Reducers\SymphonyRequestArgumentReducer;
 use Apxcde\LaravelTelltale\ArgumentReducers\ViewArgumentReducer;
 use Apxcde\LaravelTelltale\Enums\LaravelCollectType;
 use Apxcde\LaravelTelltale\Recorders\CacheRecorder\CacheRecorder;
@@ -243,8 +245,15 @@ class TelltaleConfig extends BaseFlareConfig
 
     public static function defaultArgumentReducers(): array
     {
+        $reducers = array_map(
+            fn (mixed $reducer) => $reducer === SymphonyRequestArgumentReducer::class
+                ? RequestArgumentReducer::class
+                : $reducer,
+            parent::defaultArgumentReducers(),
+        );
+
         return [
-            ...parent::defaultArgumentReducers(),
+            ...$reducers,
             ModelArgumentReducer::class,
             CollectionArgumentReducer::class,
             ViewArgumentReducer::class,

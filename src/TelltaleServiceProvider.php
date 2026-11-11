@@ -28,6 +28,7 @@ use Apxcde\LaravelTelltale\Support\UrlCensor;
 use Spatie\FlareClient\EntryPoint\EntryPointResolver;
 use Spatie\FlareClient\FlareProvider;
 use Spatie\FlareClient\Support\Redactor;
+use Spatie\FlareClient\Support\Runtime;
 use Spatie\FlareClient\Logger as FlareLogger;
 use Spatie\FlareClient\Resources\Resource;
 use Spatie\FlareClient\Scopes\Scope;
@@ -179,6 +180,16 @@ class TelltaleServiceProvider extends ServiceProvider
         method_exists($this->app, 'registered')
             ? $this->app->registered($captureRegisteredTime)
             : $this->app->booting($captureRegisteredTime);
+
+        // Under a web server PHP can put the query string in `argv`, and the
+        // core client reports `argv` as the process command. A web request
+        // has no command, so both attributes are blanked there.
+        $this->app->extend(
+            Resource::class,
+            fn (Resource $resource) => Runtime::runningInConsole()
+                ? $resource
+                : $resource->addAttributes(['process.command' => null, 'process.command_args' => null])
+        );
 
         if ($this->config->trace === false) {
             return;
