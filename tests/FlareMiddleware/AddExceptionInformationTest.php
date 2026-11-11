@@ -127,6 +127,27 @@ it('will add user context when provided on a custom exception', function () {
     expect($context['hello'])->toBe('world');
 });
 
+it('censors user context with the body fields censor list', function () {
+    setupFlare(fn (TelltaleConfig $config) => $config->censorBodyFields('from', 'to'));
+
+    $report = Telltale::report(new class extends Exception {
+        public function context()
+        {
+            return [
+                'From' => '+15551234567',
+                'message_sid' => 'SM123',
+                'webhook' => ['to' => '+15557654321'],
+            ];
+        }
+    })->toArray();
+
+    expect($report['attributes']['context.exception'])->toBe([
+        'From' => '<CENSORED:string>',
+        'message_sid' => 'SM123',
+        'webhook' => ['to' => '<CENSORED:string>'],
+    ]);
+});
+
 it('will only add arrays as user provided context', function () {
     setupFlare();
 

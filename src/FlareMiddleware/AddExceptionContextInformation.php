@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Spatie\FlareClient\Contracts\ProvidesFlareContext;
 use Spatie\FlareClient\FlareMiddleware\FlareMiddleware;
 use Spatie\FlareClient\ReportFactory;
+use Spatie\FlareClient\Support\Redactor;
 use Throwable;
 
 class AddExceptionContextInformation implements FlareMiddleware
@@ -98,6 +99,25 @@ class AddExceptionContextInformation implements FlareMiddleware
             return;
         }
 
-        $report->addAttribute('context.exception', $context);
+        $report->addAttribute('context.exception', $this->censor($context));
+    }
+
+    /**
+     * Censor the context with the same rules as the request body
+     * (`censor.body_fields`), so a value hidden in the request is not sent
+     * readable in the exception's own context. If the redactor cannot be
+     * resolved, the context is left out.
+     *
+     * @param array<array-key, mixed> $context
+     *
+     * @return array<array-key, mixed>
+     */
+    private function censor(array $context): array
+    {
+        try {
+            return app(Redactor::class)->censorBody($context);
+        } catch (Throwable) {
+            return [];
+        }
     }
 }
