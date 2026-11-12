@@ -75,3 +75,36 @@ it('has tracing and the share button off by default', function (string $file) {
     expect($config['trace'])->toBeFalse();
     expect($config['enable_share_button'])->toBeFalse();
 })->with(['telltale.php', 'telltale.php.stub']);
+
+it('hides cookies and the session by default', function () {
+    config()->set('telltale', require __DIR__.'/../config/telltale.php');
+
+    $config = TelltaleConfig::fromLaravelConfig();
+
+    expect($config->censorCookies)->toBeTrue()
+        ->and($config->censorSession)->toBeTrue();
+});
+
+it('hides cookies and the session when a published config does not mention them', function () {
+    $telltaleConfig = require __DIR__.'/../config/telltale.php';
+
+    unset($telltaleConfig['censor']['cookies'], $telltaleConfig['censor']['session']);
+
+    config()->set('telltale', $telltaleConfig);
+
+    $config = TelltaleConfig::fromLaravelConfig();
+
+    expect($config->censorCookies)->toBeTrue()
+        ->and($config->censorSession)->toBeTrue();
+});
+
+it('sends cookies and the session when an application turns hiding off', function () {
+    config()->set('telltale', require __DIR__.'/../config/telltale.php');
+    config()->set('telltale.censor.cookies', false);
+    config()->set('telltale.censor.session', false);
+
+    $config = TelltaleConfig::fromLaravelConfig();
+
+    expect($config->censorCookies)->toBeFalse()
+        ->and($config->censorSession)->toBeFalse();
+});

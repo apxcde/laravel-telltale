@@ -72,8 +72,8 @@ class TelltaleConfig extends BaseFlareConfig
             censorClientIps: config('telltale.censor.client_ips'),
             censorHeaders: config('telltale.censor.headers'),
             censorBodyFields: config('telltale.censor.body_fields'),
-            censorCookies: config('telltale.censor.cookies', false),
-            censorSession: config('telltale.censor.session', false),
+            censorCookies: config('telltale.censor.cookies', true),
+            censorSession: config('telltale.censor.session', true),
             censorCookieNames: array_values(array_filter([
                 config('session.cookie'),
                 ...Arr::wrap(config('telltale.censor.cookie_names', ['remember_*'])),

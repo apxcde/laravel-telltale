@@ -73,8 +73,10 @@ return [
             'remember_*',
         ],
         'client_ips' => false,
-        'cookies' => false,
-        'session' => false,
+        // Cookie and session values are left out of reports. Set either to
+        // false to send them; the cookies named above stay hidden even then.
+        'cookies' => true,
+        'session' => true,
     ],
 
     /*
