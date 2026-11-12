@@ -4,7 +4,10 @@ use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Exceptions\Handler;
 use Apxcde\LaravelTelltale\Facades\Telltale;
+use Apxcde\LaravelTelltale\Senders\LaravelHttpSender;
 use Apxcde\LaravelTelltale\TelltaleConfig;
+use Illuminate\Support\Facades\Http;
+use Spatie\FlareClient\Api;
 
 afterEach(function () {
     unset($_SERVER['LARAVEL_CLOUD']);
@@ -128,4 +131,35 @@ it('names Telltale and leaves out Flare\'s own help', function () {
         ->expectsOutputToContain('Error sent to Telltale')
         ->doesntExpectOutputToContain('Flare')
         ->assertOk();
+});
+
+it('shows the reason Telltale gave for refusing a send', function () {
+    Http::fake(['*' => Http::response(['message' => 'The project key is not valid.'], 403)]);
+
+    setupFlare(function (TelltaleConfig $config) {
+        $config->api = Api::class;
+        $config->sender = LaravelHttpSender::class;
+        $config->baseUrl = 'https://telltale.test';
+    });
+
+    $this->artisan('telltale:test --errors')
+        ->expectsOutputToContain('403 - The project key is not valid.')
+        ->assertFailed();
+});
+
+it('says when a refusal did not come from Telltale', function () {
+    Http::fake(['*' => Http::response(
+        '<html><head><title>Just a moment...</title><style>body{margin:0}</style></head><body>Checking your browser</body></html>',
+        403,
+    )]);
+
+    setupFlare(function (TelltaleConfig $config) {
+        $config->api = Api::class;
+        $config->sender = LaravelHttpSender::class;
+        $config->baseUrl = 'https://telltale.test';
+    });
+
+    $this->artisan('telltale:test --errors')
+        ->expectsOutputToContain('403 - The answer was not JSON, so it may have come from a firewall or proxy in front of Telltale. It read: Just a moment...')
+        ->assertFailed();
 });

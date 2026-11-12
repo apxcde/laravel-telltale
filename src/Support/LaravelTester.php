@@ -7,6 +7,7 @@ use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Exceptions\ReportableHandler;
+use Illuminate\Support\Str;
 use Laravel\SerializableClosure\Support\ReflectionClosure;
 use ReflectionException;
 use ReflectionNamedType;
@@ -21,6 +22,7 @@ use Spatie\FlareClient\Memory\Memory;
 use Spatie\FlareClient\ReportFactory;
 use Spatie\FlareClient\Resources\Resource;
 use Spatie\FlareClient\Senders\DaemonSender;
+use Spatie\FlareClient\Senders\Exceptions\BadResponseCode;
 use Spatie\FlareClient\Support\Ids;
 use Spatie\FlareClient\Support\SymfonyTester;
 use Spatie\FlareClient\Time\Time;
@@ -100,6 +102,28 @@ class LaravelTester extends SymfonyTester
         }
 
         parent::warnAboutEntity($type);
+    }
+
+    /**
+     * Telltale refuses a send with JSON that carries a `message`. Any other
+     * answer is shown as its page title or its first words, and flagged,
+     * because it likely came from a firewall or proxy in front of Telltale.
+     */
+    protected function describeBadResponse(BadResponseCode $exception): string
+    {
+        $body = $exception->response->body;
+
+        if (! is_string($body) || trim($body) === '') {
+            return parent::describeBadResponse($exception);
+        }
+
+        $text = preg_match('/<title[^>]*>(.*?)<\/title>/is', $body, $matches) === 1
+            ? $matches[1]
+            : strip_tags($body);
+
+        $text = Str::limit(Str::squish(html_entity_decode($text)), 200);
+
+        return "{$exception->response->code} - The answer was not JSON, so it may have come from a firewall or proxy in front of Telltale. It read: {$text}";
     }
 
     protected function buildThrowable(): Throwable

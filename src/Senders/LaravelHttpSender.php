@@ -30,13 +30,19 @@ class LaravelHttpSender implements Sender
         $this->handleResponse($response, $callback);
     }
 
+    /**
+     * Hand the client the whole answer: the decoded JSON, or the raw text
+     * when the answer is not JSON. `telltale:test` reads the reason for a
+     * refusal from it, and an answer from something in front of Telltale,
+     * such as a firewall, is usually not JSON.
+     */
     protected function handleResponse(
         HttpResponse $response,
         Closure $callback
     ): void {
         $callback(new Response(
             $response->status(),
-            ($response->json() ?? $response->body())['errors'] ?? [],
+            $response->json() ?? $response->body(),
         ));
     }
 }
