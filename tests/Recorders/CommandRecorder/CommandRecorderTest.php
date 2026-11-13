@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\Kernel;
 use Spatie\FlareClient\Enums\SpanType;
 use Spatie\FlareClient\Tests\Shared\FakeApi;
@@ -156,3 +157,35 @@ it('can trace a nested command which will be added to the same trace', function 
         ->expectAttribute('process.exit_code', 0)
         ->expectHasAttribute('flare.peak_memory_usage');
 });
+
+it('does not trace a command that runs until it is stopped', function (string $command) {
+    test()->consoleKernel->registerCommand(new class ($command) extends Command {
+        public function __construct(string $name)
+        {
+            $this->name = $name;
+
+            parent::__construct();
+        }
+
+        public function handle(): int
+        {
+            return 0;
+        }
+    });
+
+    test()->flare->tracer->startTrace();
+
+    test()->consoleKernel->call($command);
+
+    test()->flare->tracer->endTrace();
+
+    FakeApi::assertTracesSent(0);
+})->with([
+    'horizon',
+    'horizon:supervisor',
+    'queue:listen',
+    'schedule:work',
+    'reverb:start',
+    'pulse:check',
+    'pulse:work',
+]);

@@ -45,13 +45,25 @@ class CommandRecorder extends BaseCommandRecorder
         $this->recordEnd($event->exitCode);
     }
 
-    /** @return array<int, string> */
+    /**
+     * The commands that are never traced. Most of them run until they are
+     * stopped, so a trace of one would measure how long the process lived.
+     *
+     * @return array<int, string>
+     */
     protected function defaultIgnoredCommands(): array
     {
         return [
             'list',
             'queue:work',
+            'queue:listen',
+            'horizon',
+            'horizon:supervisor',
             'horizon:work',
+            'schedule:work',
+            'reverb:start',
+            'pulse:check',
+            'pulse:work',
             'octane:start',
             'octane:reload',
             'vapor:work',
