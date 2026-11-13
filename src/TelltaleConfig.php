@@ -162,6 +162,8 @@ class TelltaleConfig extends BaseFlareConfig
                 'max_items_with_errors' => JobRecorder::DEFAULT_MAX_ITEMS_WITH_ERRORS,
                 'max_chained_job_reporting_depth' => JobRecorder::DEFAULT_MAX_CHAINED_JOB_REPORTING_DEPTH,
                 'ignored_classes' => [],
+                'report_failed' => JobRecorder::DEFAULT_REPORT_FAILED,
+                'dont_report_failed' => [],
             ],
             CollectType::Cache->value => [
                 'with_traces' => CacheRecorder::DEFAULT_WITH_TRACES,
@@ -339,6 +341,7 @@ class TelltaleConfig extends BaseFlareConfig
 
     /**
      * @param array<int, class-string> $ignoredClasses
+     * @param array<int, class-string<\Throwable>> $dontReportFailed
      */
     public function collectLaravelJobs(
         bool $withTraces = JobRecorder::DEFAULT_WITH_TRACES,
@@ -347,13 +350,20 @@ class TelltaleConfig extends BaseFlareConfig
         int $maxChainedJobReportingDepth = JobRecorder::DEFAULT_MAX_CHAINED_JOB_REPORTING_DEPTH,
         array $ignoredClasses = [],
         array $extra = [],
+        bool $reportFailed = JobRecorder::DEFAULT_REPORT_FAILED,
+        array $dontReportFailed = [],
     ): static {
         return $this->collectJobs(
             withTraces: $withTraces,
             withErrors: $withErrors,
             maxItemsWithErrors: $maxItemsWithErrors,
             ignoredClasses: $ignoredClasses,
-            extra: ['max_chained_job_reporting_depth' => $maxChainedJobReportingDepth, ...$extra],
+            extra: [
+                'max_chained_job_reporting_depth' => $maxChainedJobReportingDepth,
+                'report_failed' => $reportFailed,
+                'dont_report_failed' => $dontReportFailed,
+                ...$extra,
+            ],
         );
     }
 

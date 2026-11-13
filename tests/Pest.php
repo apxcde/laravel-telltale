@@ -13,12 +13,14 @@ use Apxcde\LaravelTelltale\Facades\Telltale as FlareFacade;
 use Apxcde\LaravelTelltale\TelltaleConfig;
 use Apxcde\LaravelTelltale\TelltaleServiceProvider;
 use Apxcde\LaravelTelltale\Support\CollectsResolver;
+use Apxcde\LaravelTelltale\Support\FailedJobReports;
 use Apxcde\LaravelTelltale\Tests\TestCase;
 
 uses(TestCase::class)->beforeEach(function () {
     FakeIds::reset();
     FakeApi::reset();
     AddJobInformation::clearLatestJobInfo();
+    FailedJobReports::forgetAll();
 })->in(__DIR__);
 
 if (file_exists(__DIR__.'/../.env')) {

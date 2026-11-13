@@ -14,6 +14,7 @@ use Apxcde\LaravelTelltale\TelltaleConfig;
 use Apxcde\LaravelTelltale\Recorders\FilesystemRecorder\FilesystemRecorder;
 use Apxcde\LaravelTelltale\Recorders\RequestRecorder\RequestRecorder;
 use Apxcde\LaravelTelltale\Recorders\RoutingRecorder\RoutingRecorder;
+use Apxcde\LaravelTelltale\Support\FailedJobReports;
 use Throwable;
 
 /**
@@ -49,6 +50,9 @@ class Telltale extends Facade
             if ($config->apiToken === null) {
                 return null;
             }
+
+            // The handler reports it, so it is no longer a failed job waiting to be reported.
+            FailedJobReports::forget($exception);
 
             $flare = app(FlareClient::class);
 
