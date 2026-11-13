@@ -50,6 +50,10 @@ class RoutingRecorder extends BaseRoutingRecorder
                 ? $this->recordRoutingEnd(FlareTracingMiddleware::$routeAttributesProvider)
                 : $this->recordForcedRoutingEnd();
 
+            if (FlareTracingMiddleware::$routeAttributesProvider !== null) {
+                Telltale::request()?->recordRouteMatched(FlareTracingMiddleware::$routeAttributesProvider);
+            }
+
             $this->recordBeforeMiddlewareStart();
         });
 
