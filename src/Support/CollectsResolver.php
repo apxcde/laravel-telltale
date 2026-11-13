@@ -135,6 +135,8 @@ class CollectsResolver extends BaseCollectsResolver
             'max_items_with_errors',
             'max_chained_job_reporting_depth',
             'ignored_classes',
+            'report_failed',
+            'dont_report_failed',
         ]));
 
         $this->addRecorder($options['queue_recorder'] ?? QueueRecorder::class, $this->only($options, [

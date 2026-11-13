@@ -4,6 +4,7 @@ namespace Apxcde\LaravelTelltale\Recorders\JobRecorder;
 
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Queue\Events\JobExceptionOccurred;
+use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Events\JobInterrupted;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
@@ -14,6 +15,8 @@ use Spatie\FlareClient\EntryPoint\EntryPointResolver;
 use Spatie\FlareClient\Enums\LifecycleStage;
 use Spatie\FlareClient\Enums\SpanEventType;
 use Spatie\FlareClient\Enums\SpanStatusCode;
+use Spatie\FlareClient\Flare;
+use Spatie\FlareClient\FlareMiddleware\AddJobInformation;
 use Spatie\FlareClient\Recorders\JobRecorder\JobRecorder as BaseJobRecorder;
 use Spatie\FlareClient\Spans\Span;
 use Spatie\FlareClient\Spans\SpanEvent;
@@ -23,16 +26,26 @@ use Spatie\FlareClient\Support\Lifecycle;
 use Spatie\FlareClient\Tracer;
 use Apxcde\LaravelTelltale\AttributesProviders\LaravelJobAttributesProvider;
 use Apxcde\LaravelTelltale\Jobs\SendFlarePayload;
+use Apxcde\LaravelTelltale\Support\FailedJobReports;
+use Apxcde\LaravelTelltale\TelltaleConfig;
+use Throwable;
 
 class JobRecorder extends BaseJobRecorder
 {
     public const DEFAULT_MAX_CHAINED_JOB_REPORTING_DEPTH = 2;
+
+    public const DEFAULT_REPORT_FAILED = true;
 
     public const INTERNAL_IGNORED_JOBS = [
         SendFlarePayload::class,
     ];
 
     protected int $maxChainedJobReportingDepth = self::DEFAULT_MAX_CHAINED_JOB_REPORTING_DEPTH;
+
+    protected bool $reportFailed = self::DEFAULT_REPORT_FAILED;
+
+    /** @var array<int, class-string<Throwable>> */
+    protected array $dontReportFailed = [];
 
     public function __construct(
         Tracer $tracer,
@@ -51,6 +64,8 @@ class JobRecorder extends BaseJobRecorder
         parent::configure($config);
 
         $this->maxChainedJobReportingDepth = $config['maxChainedJobReportingDepth'] ?? self::DEFAULT_MAX_CHAINED_JOB_REPORTING_DEPTH;
+        $this->reportFailed = $config['report_failed'] ?? self::DEFAULT_REPORT_FAILED;
+        $this->dontReportFailed = $config['dont_report_failed'] ?? [];
     }
 
     public function boot(): void
@@ -58,8 +73,12 @@ class JobRecorder extends BaseJobRecorder
         $this->dispatcher->listen(JobProcessing::class, [$this, 'recordProcessing']);
         $this->dispatcher->listen(JobProcessed::class, [$this, 'recordProcessed']);
         $this->dispatcher->listen(JobExceptionOccurred::class, [$this, 'recordExceptionOccurred']);
+        $this->dispatcher->listen(JobFailed::class, [$this, 'rememberFailed']);
         $this->dispatcher->listen(JobTimedOut::class, [$this, 'recordTimedOut']);
+        $this->dispatcher->listen(Looping::class, [$this, 'reportUnreportedFailures']);
         $this->dispatcher->listen(Looping::class, [$this, 'endLeftoverSubtask']);
+
+        app()->terminating(fn () => $this->reportUnreportedFailures());
 
         if (class_exists(JobInterrupted::class)) {
             $this->dispatcher->listen(JobInterrupted::class, [$this, 'recordInterrupted']);
@@ -68,6 +87,8 @@ class JobRecorder extends BaseJobRecorder
 
     public function recordProcessing(JobProcessing $event): ?Span
     {
+        $this->reportUnreportedFailures();
+
         $traceparent = $event->job->payload()[Ids::FLARE_TRACE_PARENT] ?? null;
 
         return $this->recordStart(
@@ -108,6 +129,63 @@ class JobRecorder extends BaseJobRecorder
         return $span;
     }
 
+    /**
+     * Laravel fires JobFailed once, when a job is finally failed: its tries are used up, it
+     * timed out for good, its model could not be restored, or it called fail(). The exception
+     * handler does not see every one of these. It drops the classes Laravel never reports, such
+     * as ModelNotFoundException, and what the application lists as not to report, and it is
+     * never called for a timeout or for a job that failed itself without throwing.
+     *
+     * The failure is only remembered here. The worker hands the exception to the handler after
+     * this event, and when the handler reports it, nothing more is needed.
+     */
+    public function rememberFailed(JobFailed $event): void
+    {
+        if (! $this->reportFailed || app(TelltaleConfig::class)->apiToken === null) {
+            return;
+        }
+
+        foreach ($this->dontReportFailed as $ignoredException) {
+            if ($event->exception instanceof $ignoredException) {
+                return;
+            }
+        }
+
+        if ($this->shouldIgnoreJob($event->job->resolveName(), $event->job->payload()['data']['commandName'] ?? null)) {
+            return;
+        }
+
+        FailedJobReports::remember(
+            $event->exception,
+            $this->lifecycle->usesSubtasks ? $this->entryPointResolver->get() : null,
+            $this->stack === [] ? null : $this->stack[array_key_last($this->stack)],
+        );
+    }
+
+    /**
+     * Report the failures the exception handler left unreported. Called once the worker has
+     * moved on from the failed job: before it reserves the next one, when a timeout is about to
+     * kill it, and when the application terminates.
+     *
+     * The job's span and entry point go on the report the same way they do for a failure the
+     * handler reports. They are usually still set from the job's last exception. When the job
+     * ended another way, the ones kept when it failed are used.
+     */
+    public function reportUnreportedFailures(): void
+    {
+        foreach (FailedJobReports::pull() as $failure) {
+            if (AddJobInformation::$latestJob === null && $failure['span'] !== null) {
+                AddJobInformation::setLatestJob($failure['span']);
+
+                if ($failure['entryPoint'] !== null) {
+                    AddJobInformation::setEntryPoint($failure['entryPoint']);
+                }
+            }
+
+            app(Flare::class)->report($failure['exception']);
+        }
+    }
+
     public function recordTimedOut(JobTimedOut $event): ?Span
     {
         $timeout = $this->resolveTimeout($event);
@@ -130,7 +208,9 @@ class JobRecorder extends BaseJobRecorder
         );
 
         // The worker kills the process right after dispatching this event, so this is the last
-        // chance to close the span and flush the trace.
+        // chance to close the span, report a failure the timeout caused, and flush the trace.
+        $this->reportUnreportedFailures();
+
         if ($this->lifecycle->usesSubtasks) {
             $this->lifecycle->endSubtask();
         }
