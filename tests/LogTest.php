@@ -1,11 +1,18 @@
 <?php
 
+use Illuminate\Foundation\Auth\User;
+use Illuminate\Queue\Events\JobProcessed;
+use Illuminate\Queue\Events\JobProcessing;
+use Illuminate\Queue\Jobs\SyncJob;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Monolog\Level;
 use Spatie\FlareClient\Enums\SpanEventType;
 use Spatie\FlareClient\Tests\Shared\FakeApi;
 use Spatie\FlareClient\Tests\Shared\FakeTime;
+use Apxcde\LaravelTelltale\Recorders\JobRecorder\JobRecorder;
+use Apxcde\LaravelTelltale\Support\CurrentUser;
 use Apxcde\LaravelTelltale\TelltaleConfig;
 
 beforeEach(function () {
@@ -207,4 +214,51 @@ it('will never store logs as trace events', function () {
         ->expectSpanCount(1)
         ->expectSpan(0)
         ->expectSpanEventCount(0);
+});
+
+it('adds the id of the signed-in user to a log record', function () {
+    $flare = setupFlare();
+
+    Log::info('Incoming call received');
+
+    Auth::setUser((new User())->forceFill(['id' => 58714, 'name' => 'Amina Otieno', 'email' => 'amina@example.com']));
+
+    Log::warning('Voicemail could not be transcribed', ['voicemail' => 912]);
+
+    $flare->logger->flush();
+
+    $logs = FakeApi::lastLog()->expectLogCount(2);
+
+    $logs->expectLog(0)->expectMissingAttribute('user.id');
+
+    $logs->expectLog(1)
+        ->expectAttribute('user.id', 58714)
+        ->expectAttribute('log.context', ['voicemail' => 912])
+        ->expectMissingAttribute('user.email')
+        ->expectMissingAttribute('user.full_name');
+});
+
+it('adds the user who dispatched a job to what the job logs', function () {
+    setupFlare(isUsingSubtasks: true);
+
+    $job = new SyncJob(app(), json_encode([
+        'displayName' => 'App\\Jobs\\TranscribeVoicemail',
+        'job' => 'Illuminate\\Queue\\CallQueuedHandler@call',
+        'data' => ['commandName' => 'App\\Jobs\\TranscribeVoicemail', 'command' => ''],
+        CurrentUser::PAYLOAD_KEY => 58714,
+    ]), 'redis', 'default');
+
+    $recorder = app(JobRecorder::class);
+    $recorder->recordProcessing(new JobProcessing('redis', $job));
+
+    Log::info('Transcription started');
+
+    $recorder->recordProcessed(new JobProcessed('redis', $job));
+
+    FakeApi::lastLog()
+        ->expectLogCount(1)
+        ->expectLog(0)
+        ->expectBody('Transcription started')
+        ->expectAttribute('user.id', 58714)
+        ->expectAttribute('flare.entry_point.type', 'queue');
 });

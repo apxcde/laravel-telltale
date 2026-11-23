@@ -10,9 +10,9 @@ use Spatie\FlareClient\Support\Lifecycle;
 use Spatie\FlareClient\Support\Redactor;
 use Apxcde\LaravelTelltale\AttributesProviders\LaravelRequestAttributesProvider;
 use Apxcde\LaravelTelltale\AttributesProviders\LaravelRouteAttributesProvider;
-use Apxcde\LaravelTelltale\AttributesProviders\LaravelUserAttributesProvider;
 use Apxcde\LaravelTelltale\Enums\LaravelCollectType;
 use Apxcde\LaravelTelltale\Facades\Telltale;
+use Apxcde\LaravelTelltale\Support\CurrentUser;
 use Apxcde\LaravelTelltale\TelltaleConfig;
 use Apxcde\LaravelTelltale\Support\LivewireComponentFinder;
 use Symfony\Component\HttpFoundation\Response;
@@ -60,7 +60,7 @@ class FlareTracingMiddleware
                 requestAttributesProvider: $this->requestAttributesProvider,
                 responseAttributesProvider: new SymfonyResponseAttributesProvider($this->redactor, $response),
                 routeAttributesProvider: self::$routeAttributesProvider ?? LaravelRouteAttributesProvider::fromRequest($request),
-                userAttributesProvider: LaravelUserAttributesProvider::fromRequest($request),
+                userAttributesProvider: app(CurrentUser::class)->forRequest($request),
             );
         }
 

@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\View\DynamicComponent;
 use Spatie\FlareClient\Enums\SpanEventType;
 use Spatie\FlareClient\Enums\SpanType;
+use Spatie\FlareClient\Tests\Shared\ExpectLog;
+use Spatie\FlareClient\Tests\Shared\ExpectLogData;
 use Spatie\FlareClient\Tests\Shared\ExpectReportEvent;
 use Spatie\FlareClient\Tests\Shared\ExpectSpan;
 use Spatie\FlareClient\Tests\Shared\ExpectSpanEvent;
@@ -1710,6 +1712,68 @@ describe('Laravel integration', function () {
         version_compare(InstalledVersions::getVersion('livewire/livewire'), '4.0.0', '<'),
         'Single file components require Livewire 4'
     );
+
+    // Users
+
+    it('follows the signed-in user into the job they dispatch, its logs and its failure', function () {
+        $workspace = ExpectSentPayloads::get('/user-job', waitUntilAllJobsAreProcessed: true);
+
+        $workspace->assertSent(reports: 1, traces: 2, logs: 2);
+
+        $requestSpan = $workspace->trace(0)->expectSpan(SpanType::Request)
+            ->expectHasAttribute('user.id')
+            ->expectHasAttribute('user.email');
+
+        $userId = $requestSpan->attributes()['user.id'];
+
+        expect(DB::table('users')->where('id', $userId)->exists())->toBeTrue();
+
+        $workspace->trace(1)->expectSpan(SpanType::Job)
+            ->expectAttribute('laravel.job.success', false)
+            ->expectAttribute('user.id', $userId)
+            ->expectMissingAttribute('user.email')
+            ->expectMissingAttribute('user.full_name');
+
+        $workspace->lastReport()
+            ->expectMessage('The job of a signed-in user failed')
+            ->expectAttribute('flare.entry_point.type', 'queue')
+            ->expectAttribute('user.id', $userId)
+            ->expectMissingAttribute('user.email');
+
+        // The request and the worker each send their own log file, in either order.
+        $logs = collect($workspace->logs)
+            ->flatMap(fn (ExpectLogData $data) => $data->expectLogs)
+            ->keyBy(fn (ExpectLog $log) => $log->log['body']['stringValue']);
+
+        expect($logs->keys()->sort()->values()->all())->toBe([
+            'Queueing a job for the signed-in user',
+            'The job of a signed-in user is about to fail',
+        ]);
+
+        $logs['Queueing a job for the signed-in user']
+            ->expectAttribute('flare.entry_point.type', 'web')
+            ->expectAttribute('user.id', $userId)
+            ->expectMissingAttribute('user.email');
+
+        $logs['The job of a signed-in user is about to fail']
+            ->expectAttribute('flare.entry_point.type', 'queue')
+            ->expectAttribute('user.id', $userId);
+    });
+
+    it('keeps the user on a request that signs them out', function () {
+        $workspace = ExpectSentPayloads::get('/user-logout');
+
+        $workspace->assertSent(traces: 1, logs: 1);
+
+        $requestSpan = $workspace->lastTrace()->expectSpan(SpanType::Request)
+            ->expectAttribute('http.response.status_code', 200)
+            ->expectHasAttribute('user.id')
+            ->expectHasAttribute('user.email');
+
+        $workspace->log(0)->expectLogCount(1)->expectLog(0)
+            ->expectBody('Signed out')
+            ->expectAttribute('user.id', $requestSpan->attributes()['user.id']);
+    });
 
     // Logs
 

@@ -6,7 +6,7 @@ use Illuminate\Http\Request as LaravelRequest;
 use Spatie\FlareClient\FlareMiddleware\AddRequestInformation as BaseAddRequestInformation;
 use Spatie\FlareClient\Support\Redactor;
 use Apxcde\LaravelTelltale\AttributesProviders\LaravelRequestAttributesProvider;
-use Apxcde\LaravelTelltale\AttributesProviders\LaravelUserAttributesProvider;
+use Apxcde\LaravelTelltale\Support\CurrentUser;
 use Apxcde\LaravelTelltale\Support\LivewireComponentFinder;
 
 class AddRequestInformation extends BaseAddRequestInformation
@@ -48,7 +48,7 @@ class AddRequestInformation extends BaseAddRequestInformation
             ignoreLivewireComponents: $this->ignoreLivewireComponents,
         ))->toArray();
 
-        if ($user = LaravelUserAttributesProvider::fromRequest($request)) {
+        if ($user = app(CurrentUser::class)->forRequest($request)) {
             $attributes = [...$attributes, ...$user->toArray()];
         }
 
