@@ -7,7 +7,7 @@ This package is a fork of [`spatie/laravel-flare`](https://github.com/spatie/lar
 ## What differs from `spatie/laravel-flare`
 
 - **Names.** The namespace is `Apxcde\LaravelTelltale`, the config file is `config/telltale.php`, the log driver is `telltale`, the facade is `Telltale` and the test command is `telltale:test`.
-- **Env variables** start with `TELLTALE_`: `TELLTALE_KEY`, `TELLTALE_BASE_URL`, `TELLTALE_REPORT`, `TELLTALE_TRACE`, `TELLTALE_SAMPLER_RATE` and `TELLTALE_LOG`.
+- **Env variables** start with `TELLTALE_`: `TELLTALE_KEY`, `TELLTALE_BASE_URL`, `TELLTALE_ENABLED`, `TELLTALE_REPORT`, `TELLTALE_TRACE`, `TELLTALE_SAMPLER_RATE`, `TELLTALE_REQUEST_SAMPLE_RATE`, `TELLTALE_JOB_SAMPLE_RATE`, `TELLTALE_COMMAND_SAMPLE_RATE` and `TELLTALE_LOG`.
 - **No default server.** Nothing is sent unless both `TELLTALE_KEY` and `TELLTALE_BASE_URL` are set. The package never falls back to flareapp.io.
 - **Tracing is off by default.** Enable it with `TELLTALE_TRACE=true`.
 - **The error page's Share button is off by default**, because it uploads the error to flareapp.io.
@@ -81,6 +81,39 @@ Then check the setup. Each flag sends one test payload of that kind:
 ```bash
 php artisan telltale:test --errors --logs --traces
 ```
+
+## Choosing what is recorded
+
+Turn the package off in one place. Nothing is recorded and nothing is sent, as if no key was set:
+
+```dotenv
+TELLTALE_ENABLED=false
+```
+
+`TELLTALE_SAMPLER_RATE` is the share of requests, jobs and commands that is traced, from `0` to `1` (default `0.1`). Give a kind its own rate to replace it for that kind:
+
+```dotenv
+TELLTALE_SAMPLER_RATE=0.1
+TELLTALE_REQUEST_SAMPLE_RATE=0.25
+TELLTALE_JOB_SAMPLE_RATE=1
+TELLTALE_COMMAND_SAMPLE_RATE=0
+```
+
+A queued job without a rate of its own follows the request or command that dispatched it: it is traced when that one is. With `TELLTALE_JOB_SAMPLE_RATE` set, every job decides for itself. A rate that is not a number from `0` to `1` is ignored. Errors and log records are not sampled; they are always sent.
+
+An application that already lists sampling rules for single routes, commands or queues (`sampler.config.rules` with the client's `DynamicSampler`) keeps them: a rule is asked before the rate of its kind.
+
+Leave a piece of code out of the trace it runs in, for example an import that would add thousands of query spans:
+
+```php
+use Apxcde\LaravelTelltale\Facades\Telltale;
+
+Telltale::withoutTracing(function () {
+    // Queries, cache calls and outgoing requests in here get no spans.
+});
+```
+
+What the code logs is still sent, and an error reported later in the same request still lists its queries. To stop tracing the whole request, job or command that is running and drop what was traced of it, call `Telltale::dontSample()`.
 
 ## Keeping tests silent
 

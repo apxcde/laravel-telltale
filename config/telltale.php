@@ -29,6 +29,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Enabled
+    |--------------------------------------------------------------------------
+    |
+    | Set `TELLTALE_ENABLED=false` to turn the package off in one place.
+    | Nothing is recorded and nothing is sent, as if no key was set.
+    |
+    */
+
+    'enabled' => env('TELLTALE_ENABLED', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Collects
     |--------------------------------------------------------------------------
     |
@@ -183,6 +195,25 @@ return [
         'config' => [
             'rate' => env('TELLTALE_SAMPLER_RATE', 0.1),
         ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sample rates per kind
+    |--------------------------------------------------------------------------
+    |
+    | The sampler's rate applies to everything that is traced. A rate set
+    | here replaces it for one kind: requests, queued jobs or commands.
+    | A kind left at null uses the sampler's rate. Without a rate of its
+    | own a queued job follows the request or command that dispatched it;
+    | with one, every job decides for itself.
+    |
+    */
+
+    'sample_rates' => [
+        'requests' => env('TELLTALE_REQUEST_SAMPLE_RATE'),
+        'jobs' => env('TELLTALE_JOB_SAMPLE_RATE'),
+        'commands' => env('TELLTALE_COMMAND_SAMPLE_RATE'),
     ],
 
     /*

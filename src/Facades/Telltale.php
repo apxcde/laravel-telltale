@@ -73,4 +73,45 @@ class Telltale extends Facade
             $handler->reportable($reportable);
         }
     }
+
+    /**
+     * Run a piece of code without tracing it: its queries, cache calls, outgoing requests and
+     * the like get no spans. The trace it runs in goes on as before once the code returns.
+     *
+     * Log records written and exceptions reported inside are still sent. An error reported
+     * later in the same request, job or command still lists what ran inside among its recent
+     * queries and calls, because those are kept apart from the trace.
+     *
+     * @template T
+     *
+     * @param Closure():T $callback
+     *
+     * @return T
+     */
+    public static function withoutTracing(Closure $callback): mixed
+    {
+        $tracer = app(Tracer::class);
+
+        // Not traced, or already paused by whoever called this: nothing to pause or to resume.
+        if (! $tracer->isSampling()) {
+            return $callback();
+        }
+
+        $tracer->pauseSampling();
+
+        try {
+            return $callback();
+        } finally {
+            $tracer->resumeSampling();
+        }
+    }
+
+    /**
+     * Stop tracing the request, job or command that is running and drop what was traced of
+     * it so far. Errors and log records are still sent.
+     */
+    public static function dontSample(): void
+    {
+        app(Tracer::class)->unsample();
+    }
 }
