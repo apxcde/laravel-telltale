@@ -83,14 +83,28 @@ it('has tracing and the share button off by default', function (string $file) {
     expect($config['enable_share_button'])->toBeFalse();
 })->with(['telltale.php', 'telltale.php.stub']);
 
-it('hides cookies and the session by default', function () {
-    config()->set('telltale', require __DIR__.'/../config/telltale.php');
+it('matches the package defaults in every block of the published config', function () {
+    $defaults = require __DIR__.'/../config/telltale.php';
+    $published = require __DIR__.'/../config/telltale.php.stub';
+
+    // Laravel fills in the top-level keys a published config leaves out and nothing below
+    // them, so a block the published config has replaces the package's block as a whole.
+    $expected = array_intersect_key($defaults, $published);
+
+    ksort($expected);
+    ksort($published);
+
+    expect($published)->toBe($expected);
+});
+
+it('hides cookies and the session by default', function (string $file) {
+    config()->set('telltale', require __DIR__.'/../config/'.$file);
 
     $config = TelltaleConfig::fromLaravelConfig();
 
     expect($config->censorCookies)->toBeTrue()
         ->and($config->censorSession)->toBeTrue();
-});
+})->with(['telltale.php', 'telltale.php.stub']);
 
 it('hides cookies and the session when a published config does not mention them', function () {
     $telltaleConfig = require __DIR__.'/../config/telltale.php';
