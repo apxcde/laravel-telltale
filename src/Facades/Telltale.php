@@ -97,12 +97,19 @@ class Telltale extends Facade
             return $callback();
         }
 
-        $tracer->pauseSampling();
+        // Not pauseSampling(): the recorders pause and resume the tracer for an ignored job or
+        // command, and their resume inside the callback would turn tracing back on.
+        $traceId = $tracer->currentTraceId();
+
+        $tracer->sampling = false;
 
         try {
             return $callback();
         } finally {
-            $tracer->resumeSampling();
+            // dontSample() inside the callback drops the trace; leave tracing off then.
+            if ($tracer->currentTraceId() === $traceId) {
+                $tracer->sampling = true;
+            }
         }
     }
 

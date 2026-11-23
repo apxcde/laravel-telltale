@@ -268,7 +268,7 @@ class TelltaleServiceProvider extends ServiceProvider
             });
         }
 
-        if ($this->config->trace === false) {
+        if ($this->config->trace === false || $this->provider->mode === FlareMode::Disabled) {
             return;
         }
 
