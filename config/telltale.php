@@ -29,6 +29,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Enabled
+    |--------------------------------------------------------------------------
+    |
+    | Set `TELLTALE_ENABLED=false` to turn the package off in one place.
+    | Nothing is recorded and nothing is sent, as if no key was set.
+    | A value that can't be read as on or off, such as a typo, leaves it on.
+    |
+    */
+
+    'enabled' => env('TELLTALE_ENABLED', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Collects
     |--------------------------------------------------------------------------
     |
@@ -183,6 +196,28 @@ return [
         'config' => [
             'rate' => env('TELLTALE_SAMPLER_RATE', 0.1),
         ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sample rates per kind
+    |--------------------------------------------------------------------------
+    |
+    | The sampler's rate applies to everything that is traced. A rate set
+    | here replaces it for one kind: requests, queued jobs or commands.
+    | A kind left at null uses the sampler's rate. Without a rate of its
+    | own a queued job follows the request or command that dispatched it,
+    | and a request follows an incoming `traceparent` header; with one,
+    | each decides for itself. These rates work with the RateSampler and
+    | the DynamicSampler or a class that extends it. Any other sampler
+    | class is left as it is and these rates are not used.
+    |
+    */
+
+    'sample_rates' => [
+        'requests' => env('TELLTALE_REQUEST_SAMPLE_RATE'),
+        'jobs' => env('TELLTALE_JOB_SAMPLE_RATE'),
+        'commands' => env('TELLTALE_COMMAND_SAMPLE_RATE'),
     ],
 
     /*

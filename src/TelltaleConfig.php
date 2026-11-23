@@ -6,10 +6,13 @@ use BackedEnum;
 use Illuminate\Support\Arr;
 use Spatie\FlareClient\Contracts\FlareCollectType;
 use Spatie\FlareClient\Enums\CollectType;
+use Spatie\FlareClient\Enums\EntryPointType;
 use Spatie\FlareClient\FlareConfig as BaseFlareConfig;
 use Spatie\FlareClient\FlareMiddleware\AddLogs;
 use Spatie\FlareClient\Recorders\GlowRecorder\GlowRecorder;
 use Spatie\FlareClient\Resources\Resource;
+use Spatie\FlareClient\Sampling\DynamicSampler;
+use Spatie\FlareClient\Sampling\RateSampler;
 use Spatie\FlareClient\Tracer;
 use Apxcde\LaravelTelltale\ArgumentReducers\CollectionArgumentReducer;
 use Apxcde\LaravelTelltale\ArgumentReducers\ModelArgumentReducer;
@@ -28,6 +31,7 @@ use Apxcde\LaravelTelltale\Recorders\QueryRecorder\QueryRecorder;
 use Apxcde\LaravelTelltale\Recorders\RequestRecorder\RequestRecorder;
 use Apxcde\LaravelTelltale\Recorders\TransactionRecorder\TransactionRecorder;
 use Apxcde\LaravelTelltale\Recorders\ViewRecorder\ViewRecorder;
+use Apxcde\LaravelTelltale\Sampling\EntryPointTypeSamplingRule;
 use Apxcde\LaravelTelltale\Sampling\SamplingRule;
 
 class TelltaleConfig extends BaseFlareConfig
@@ -62,8 +66,14 @@ class TelltaleConfig extends BaseFlareConfig
             )));
         }
 
+        [$sampler, $samplerConfig] = static::applySampleRates(
+            config('telltale.sampler.class'),
+            $samplerConfig,
+            config('telltale.sample_rates'),
+        );
+
         $config = new self(
-            apiToken: $baseUrl === null ? null : config('telltale.key'),
+            apiToken: $baseUrl === null || ! static::isEnabled(config('telltale.enabled', true)) ? null : config('telltale.key'),
             baseUrl: $baseUrl ?? '',
             collects: $collects,
             applicationPath: base_path(),
@@ -87,7 +97,7 @@ class TelltaleConfig extends BaseFlareConfig
             minimalLogLevel: config('telltale.minimal_log_level'),
             sender: config('telltale.sender.class'),
             senderConfig: config('telltale.sender.config', []),
-            sampler: config('telltale.sampler.class'),
+            sampler: $sampler,
             samplerConfig: $samplerConfig,
         );
 
@@ -109,6 +119,78 @@ class TelltaleConfig extends BaseFlareConfig
         $baseUrl = rtrim(trim($baseUrl), '/');
 
         return $baseUrl === '' ? null : $baseUrl;
+    }
+
+    /**
+     * The package is on unless it is turned off: `false`, `0`, `off`, `no` or an empty value.
+     * A value that says neither on nor off, such as a mistyped word, leaves it on.
+     */
+    protected static function isEnabled(mixed $enabled): bool
+    {
+        if ($enabled === null) {
+            return true;
+        }
+
+        return filter_var($enabled, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? true;
+    }
+
+    /**
+     * Work the sample rates per kind into the sampler.
+     *
+     * The client's rate sampler knows one rate, so it is swapped for the dynamic sampler, which
+     * takes rules. The rule for the kinds goes last, so a rule the application wrote for a
+     * route, a command or a queue still wins. A sampler of the application's own is left alone.
+     *
+     * @param array<string, mixed> $samplerConfig
+     *
+     * @return array{0: mixed, 1: array<string, mixed>}
+     */
+    protected static function applySampleRates(mixed $sampler, array $samplerConfig, mixed $sampleRates): array
+    {
+        if (! is_string($sampler) || ! is_a($sampler, RateSampler::class, true)) {
+            return [$sampler, $samplerConfig];
+        }
+
+        // A rate that is not a number from 0 to 1 would make the sampler throw while the
+        // application boots. Without one the sampler falls back to its default.
+        foreach (['rate', 'base_rate'] as $key) {
+            if (! array_key_exists($key, $samplerConfig)) {
+                continue;
+            }
+
+            $samplerConfig[$key] = EntryPointTypeSamplingRule::normalizeRate($samplerConfig[$key]);
+
+            if ($samplerConfig[$key] === null) {
+                unset($samplerConfig[$key]);
+            }
+        }
+
+        $sampleRates = is_array($sampleRates) ? $sampleRates : [];
+
+        $rule = new EntryPointTypeSamplingRule([
+            EntryPointType::Web->value => $sampleRates['requests'] ?? null,
+            EntryPointType::Queue->value => $sampleRates['jobs'] ?? null,
+            EntryPointType::Cli->value => $sampleRates['commands'] ?? null,
+        ]);
+
+        if ($rule->isEmpty()) {
+            return [$sampler, $samplerConfig];
+        }
+
+        if (is_a($sampler, DynamicSampler::class, true)) {
+            $rules = is_array($samplerConfig['rules'] ?? null) ? $samplerConfig['rules'] : [];
+
+            return [$sampler, [...$samplerConfig, 'rules' => [...$rules, $rule]]];
+        }
+
+        if ($sampler !== RateSampler::class) {
+            return [$sampler, $samplerConfig];
+        }
+
+        return [DynamicSampler::class, [
+            'base_rate' => $samplerConfig['rate'] ?? null,
+            'rules' => [$rule],
+        ]];
     }
 
     /**
