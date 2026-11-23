@@ -20,23 +20,6 @@ Belongs in `apxcde/laravel-telltale`:
 
 When adding behaviour, default to extending an existing client class on the Laravel side rather than spinning up a new value object. If a feature is useful outside Laravel, push it down into the client package and subclass here.
 
-### Bootstrapping (`TelltaleServiceProvider`)
-
-`register()`:
-1. Merges `config/telltale.php` and hydrates a `TelltaleConfig` via `TelltaleConfig::fromLaravelConfig()`. `TelltaleConfig` extends the client's `FlareConfig` and is aliased to the base class in the container.
-2. Constructs a `FlareProvider` (from the client package) with the config, the container, and a handful of Laravel-specific closures (recorder registration callback, subtask detection, graceful span ender).
-3. Registers Laravel-only singletons (`BackTracer`, `LaravelStacktraceMapper`, view frame mappers, Livewire support).
-4. Extends `Resource` and `Scope` with Laravel telemetry attributes.
-5. Calls `$provider->register()`, which binds all configured recorders and Flare middleware.
-
-`boot()`:
-1. Publishes the config stub and registers `TestCommand`.
-2. Calls `$provider->boot()`.
-3. Wires Octane event listeners for subtask lifecycle.
-4. Maps `ViewException` through the framework exception handler.
-5. Drives the client `Lifecycle` state machine (`start`, `register`, `registered`, `boot`, `booted`, `terminating`, `terminated`) using Laravel's container hooks.
-6. If tracing is enabled, extends the route dispatchers and prepends `FlareTracingMiddleware`.
-
 ### Config hydration
 
 `TelltaleConfig::fromLaravelConfig()` reads `config/telltale.php` into a typed `TelltaleConfig`. Three rules apply:
@@ -50,23 +33,6 @@ When adding behaviour, default to extending an existing client class on the Lara
 Names an application sees are Telltale's: the `Apxcde\LaravelTelltale` namespace, `config/telltale.php`, the `telltale` log driver and filesystem disk key, the `Telltale` facade, `TelltaleServiceProvider`, `TelltaleConfig`, `telltale:test` and the `TELLTALE_*` env variables. Internal classes keep their upstream names (`FlareTracingMiddleware`, `FlareLogHandler`, `SendFlarePayload`, the `FlareMiddleware/` folder), as does everything in the client package.
 
 Never rename anything that goes over the wire: the `/v1/*` endpoints, the `x-api-token` header, and attribute names such as `flare.span_type` and `flare.entry_point.*`. Telltale accepts the stock Flare clients too.
-
-### Subsystems (`src/`)
-
-- `FlareMiddleware/`: per-report enrichers (request info, console info, view info, exception context, handled status). Runs synchronously when a report is built.
-- `Recorders/`: long-lived collectors for cache, queries, jobs, queues, HTTP, filesystem, Livewire, notifications, routing, transactions, views, etc. Subscribe to Laravel events and feed spans/breadcrumbs.
-- `Sampling/`: `SamplingRule` subclasses (route name, route action, queue name, queue connection) consumed by the client's sampler.
-- `Senders/`: Laravel-specific transports (`LaravelHttpSender`, `LaravelVaporSender`).
-- `ArgumentReducers/`: turn Laravel-specific argument types (Eloquent models, collections, views) into reportable representations.
-- `AttributesProviders/`: produce OpenTelemetry attributes for requests, routes, jobs, commands, users, Livewire components.
-- `Http/`: `FlareTracingMiddleware` plus route dispatcher wrappers that open spans around controller/closure dispatch.
-- `Commands/`: `TestCommand` (`telltale:test`).
-- `Jobs/SendFlarePayload.php`: queued job for async sending.
-- `Views/`: Blade source map compiler, view exception mapper, view/Livewire frame mappers. Used to translate compiled-Blade stack frames back to source.
-- `Support/`: small Laravel-aware utilities (`BackTracer`, `CollectsResolver`, `FlareLogHandler`, `Telemetry`, `LivewireComponentFinder`, `LaravelStacktraceMapper`).
-- `Enums/`, `Exceptions/`, `Facades/`, `Filesystem/`: small support types.
-
-The client package mirrors much of this layout under `vendor/spatie/flare-client-php/src/` and is the source of truth for shared abstractions.
 
 ## Running the test suite
 
@@ -92,33 +58,3 @@ For unit tests only (no workbench needed):
 ```bash
 vendor/bin/pest --exclude-group=integration
 ```
-
-## Testing against a local flare-client-php checkout
-
-When changes to `spatie/flare-client-php` need verification against this package, symlink the local checkout via a path repository instead of editing `vendor/` by hand.
-
-Add the following to `composer.json` (next to `config`):
-
-```json
-"repositories": [
-    {
-        "type": "path",
-        "url": "../flare-client-php",
-        "options": { "symlink": true }
-    }
-],
-"minimum-stability": "dev",
-"prefer-stable": true
-```
-
-Then:
-
-```bash
-composer update spatie/flare-client-php --with-all-dependencies
-```
-
-Verify the symlink with `ls -la vendor/spatie/flare-client-php` (should show `->  ../../../flare-client-php/`).
-
-Run the full integration suite as above to catch regressions.
-
-To reset, back up `composer.json` and `composer.lock` before linking, then restore them and run `composer install` after testing.
