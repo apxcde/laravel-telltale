@@ -83,7 +83,7 @@ it('has tracing and the share button off by default', function (string $file) {
     expect($config['enable_share_button'])->toBeFalse();
 })->with(['telltale.php', 'telltale.php.stub']);
 
-it('publishes the package defaults in every block of the published config', function () {
+it('matches the package defaults in every block of the published config', function () {
     $defaults = require __DIR__.'/../config/telltale.php';
     $published = require __DIR__.'/../config/telltale.php.stub';
 
