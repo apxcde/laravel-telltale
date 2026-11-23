@@ -3,6 +3,8 @@
 namespace Apxcde\LaravelTelltale;
 
 use Closure;
+use Illuminate\Auth\Events\CurrentDeviceLogout;
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Foundation\Application;
@@ -47,6 +49,7 @@ use Apxcde\LaravelTelltale\Http\RouteDispatchers\CallableRouteDispatcher;
 use Apxcde\LaravelTelltale\Http\RouteDispatchers\ControllerRouteDispatcher;
 use Apxcde\LaravelTelltale\Support\BackTracer;
 use Apxcde\LaravelTelltale\Support\CollectsResolver;
+use Apxcde\LaravelTelltale\Support\CurrentUser;
 use Apxcde\LaravelTelltale\Support\FlareLogHandler;
 use Apxcde\LaravelTelltale\Support\LaravelStacktraceMapper;
 use Apxcde\LaravelTelltale\Support\LivewireComponentFinder;
@@ -153,6 +156,8 @@ class TelltaleServiceProvider extends ServiceProvider
             disableApiQueue: $this->disableApiQueue,
         );
 
+        $this->app->singleton(CurrentUser::class);
+
         $this->registerShareButton();
         $this->registerLogHandler();
 
@@ -229,6 +234,7 @@ class TelltaleServiceProvider extends ServiceProvider
 
         $this->configureOctane();
         $this->registerViewExceptionMapper();
+        $this->rememberUsersWhoSignOut();
 
         if ($this->provider->mode !== FlareMode::Disabled) {
             $lifecycle = $this->app->get(Lifecycle::class);
@@ -289,6 +295,7 @@ class TelltaleServiceProvider extends ServiceProvider
                 $app->make(FlareLogger::class),
                 $this->config->minimalLogLevel ?? FlareLogHandler::DEFAULT_MONOLOG_LEVEL,
                 $config['bubble'] ?? true,
+                $app->make(CurrentUser::class),
             );
 
             return (new Logger('Flare'))->pushHandler($handler);
@@ -325,6 +332,28 @@ class TelltaleServiceProvider extends ServiceProvider
         app('events')->listen(TickReceived::class, function () {
             $this->getFlare()->lifecycle->endSubtask();
         });
+    }
+
+    /**
+     * A request that signs its user out ends with nobody signed in. The user is kept so the
+     * request, and what it still logs or dispatches, is not counted as a guest's.
+     */
+    protected function rememberUsersWhoSignOut(): void
+    {
+        if ($this->provider->mode === FlareMode::Disabled) {
+            return;
+        }
+
+        // Resolved here, not in the listener, so one instance is shared with the recorders
+        // when a runtime such as Octane hands every request its own copy of the application.
+        $currentUser = $this->app->make(CurrentUser::class);
+
+        // AuthenticateSession signs the user out with logoutCurrentDevice(), which announces
+        // CurrentDeviceLogout instead of Logout.
+        $this->app->make('events')->listen(
+            [Logout::class, CurrentDeviceLogout::class],
+            fn (Logout|CurrentDeviceLogout $event) => $currentUser->rememberSignedOut($event->user),
+        );
     }
 
     protected function registerViewExceptionMapper(): void

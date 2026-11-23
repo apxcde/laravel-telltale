@@ -12,15 +12,21 @@ use Spatie\FlareClient\Support\Ids;
 use Spatie\FlareClient\Tracer;
 use Apxcde\LaravelTelltale\AttributesProviders\LaravelQueuedJobAttributesProvider;
 use Apxcde\LaravelTelltale\Recorders\JobRecorder\JobRecorder;
+use Apxcde\LaravelTelltale\Support\CurrentUser;
 
 class QueueRecorder extends BaseQueueRecorder
 {
+    protected CurrentUser $currentUser;
+
     public function __construct(
         Tracer $tracer,
         BackTracer $backTracer,
         protected Dispatcher $dispatcher,
-        array $config
+        array $config,
+        ?CurrentUser $currentUser = null,
     ) {
+        $this->currentUser = $currentUser ?? app(CurrentUser::class);
+
         parent::__construct($tracer, $backTracer, $config);
     }
 
@@ -29,6 +35,14 @@ class QueueRecorder extends BaseQueueRecorder
         Queue::createPayloadUsing(function (?string $connection, ?string $queue, ?array $payload): ?array {
             if ($payload === null) {
                 return $payload;
+            }
+
+            // The worker that runs the job has nobody signed in, so the id of the user who
+            // dispatched it goes along.
+            $userId = $this->currentUser->id();
+
+            if ($userId !== null) {
+                $payload[CurrentUser::PAYLOAD_KEY] = $userId;
             }
 
             if ($this->isSyncConnection($connection)) {

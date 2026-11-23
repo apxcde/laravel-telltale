@@ -4,6 +4,7 @@ use Composer\InstalledVersions;
 use Illuminate\Bus\Batch;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\DB;
@@ -326,6 +327,32 @@ Route::get('logs', function () {
     throw new Exception('All logs recorded');
 
     return 'ok';
+});
+
+// Users
+
+Route::get('user-job', function () {
+    Auth::login(User::factory()->create());
+
+    Log::info('Queueing a job for the signed-in user');
+
+    dispatch(function () {
+        Log::warning('The job of a signed-in user is about to fail');
+
+        throw new Exception('The job of a signed-in user failed');
+    });
+
+    return 'Dispatched';
+});
+
+Route::get('user-logout', function () {
+    Auth::login(User::factory()->create());
+
+    Auth::logout();
+
+    Log::info('Signed out');
+
+    return 'Signed out';
 });
 
 // Glows

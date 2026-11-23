@@ -26,6 +26,7 @@ use Spatie\FlareClient\Support\Lifecycle;
 use Spatie\FlareClient\Tracer;
 use Apxcde\LaravelTelltale\AttributesProviders\LaravelJobAttributesProvider;
 use Apxcde\LaravelTelltale\Jobs\SendFlarePayload;
+use Apxcde\LaravelTelltale\Support\CurrentUser;
 use Apxcde\LaravelTelltale\Support\FailedJobReports;
 use Apxcde\LaravelTelltale\TelltaleConfig;
 use Throwable;
@@ -47,6 +48,8 @@ class JobRecorder extends BaseJobRecorder
     /** @var array<int, class-string<Throwable>> */
     protected array $dontReportFailed = [];
 
+    protected CurrentUser $currentUser;
+
     public function __construct(
         Tracer $tracer,
         BackTracer $backTracer,
@@ -55,7 +58,10 @@ class JobRecorder extends BaseJobRecorder
         protected Dispatcher $dispatcher,
         protected ReduceArgumentPayloadAction $reduceArgumentPayloadAction,
         array $config,
+        ?CurrentUser $currentUser = null,
     ) {
+        $this->currentUser = $currentUser ?? app(CurrentUser::class);
+
         parent::__construct($tracer, $backTracer, $entryPointResolver, $lifecycle, $config);
     }
 
@@ -89,7 +95,17 @@ class JobRecorder extends BaseJobRecorder
     {
         $this->reportUnreportedFailures();
 
-        $traceparent = $event->job->payload()[Ids::FLARE_TRACE_PARENT] ?? null;
+        $payload = $event->job->payload();
+
+        $traceparent = $payload[Ids::FLARE_TRACE_PARENT] ?? null;
+
+        // A worker is idle between its jobs. A job that runs inside a request, or inside
+        // another job, starts while that one is still open and must keep its user.
+        if ($this->lifecycle->usesSubtasks && $this->lifecycle->getStage() === LifecycleStage::Idle) {
+            $this->currentUser->startOver();
+        }
+
+        $userId = $this->currentUser->enterJob($payload[CurrentUser::PAYLOAD_KEY] ?? null);
 
         return $this->recordStart(
             jobAttributesProvider: new LaravelJobAttributesProvider(
@@ -99,16 +115,21 @@ class JobRecorder extends BaseJobRecorder
                 $this->maxChainedJobReportingDepth,
             ),
             traceparent: $traceparent,
+            attributes: $userId === null ? [] : ['user.id' => $userId],
         );
     }
 
     public function recordProcessed(JobProcessed $event): ?Span
     {
-        return $this->recordEnd([
+        $span = $this->recordEnd([
             'laravel.job.success' => true,
             'laravel.job.released' => $event->job->isReleased(),
             'laravel.job.deleted' => $event->job->isDeleted(),
         ]);
+
+        $this->currentUser->leaveJob();
+
+        return $span;
     }
 
     public function recordExceptionOccurred(JobExceptionOccurred $event): ?Span
@@ -118,6 +139,8 @@ class JobRecorder extends BaseJobRecorder
             'laravel.job.released' => $event->job->isReleased(),
             'laravel.job.deleted' => $event->job->isDeleted(),
         ]);
+
+        $this->currentUser->leaveJob();
 
         // dispatchAfterResponse runs in the main HTTP lifecycle (Terminating stage). When the
         // job throws, Laravel renders the error and never reaches `terminated()`, so we force it
@@ -206,6 +229,8 @@ class JobRecorder extends BaseJobRecorder
             ),
             includeMemoryUsage: true,
         );
+
+        $this->currentUser->leaveJob();
 
         // The worker kills the process right after dispatching this event, so this is the last
         // chance to close the span, report a failure the timeout caused, and flush the trace.
