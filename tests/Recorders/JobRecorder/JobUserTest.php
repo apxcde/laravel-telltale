@@ -1,6 +1,7 @@
 <?php
 
 use Apxcde\LaravelTelltale\Recorders\JobRecorder\JobRecorder;
+use Apxcde\LaravelTelltale\Recorders\QueueRecorder\QueueRecorder;
 use Apxcde\LaravelTelltale\Support\CurrentUser;
 use Apxcde\LaravelTelltale\Tests\stubs\Jobs\QueueableJob;
 use Illuminate\Contracts\Queue\Job;
@@ -13,10 +14,16 @@ use Illuminate\Queue\Events\Looping;
 use Illuminate\Queue\Jobs\SyncJob;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Spatie\Backtrace\Arguments\ReduceArgumentPayloadAction;
+use Spatie\FlareClient\EntryPoint\EntryPointResolver;
 use Spatie\FlareClient\Enums\SpanType;
 use Spatie\FlareClient\Flare;
+use Spatie\FlareClient\Support\BackTracer;
+use Spatie\FlareClient\Support\Lifecycle;
 use Spatie\FlareClient\Tests\Shared\FakeApi;
+use Spatie\FlareClient\Tracer;
 
 function dispatchingUser(int|string $id = 58714): User
 {
@@ -34,6 +41,15 @@ function reservedJob(int|string|null $userId = null, string $class = 'App\\Jobs\
         'data' => ['commandName' => $class, 'command' => ''],
         CurrentUser::PAYLOAD_KEY => $userId,
     ], fn (mixed $value) => $value !== null)), 'redis', 'default');
+}
+
+/**
+ * Send what the application logs to Telltale.
+ */
+function logToTelltale(): void
+{
+    config()->set('logging.channels.telltale.driver', 'telltale');
+    config()->set('logging.default', 'telltale');
 }
 
 /**
@@ -230,6 +246,99 @@ it('does not hand the user of one job to the next job of a worker', function (Cl
     'the first job ended without a closing event' => [fn () => event(new Looping('redis', 'default'))],
 ]);
 
+it('does not name a user an earlier job of the worker signed in', function () {
+    setupFlare(alwaysSampleTraces: true, isUsingSubtasks: true);
+    queueOnDatabase();
+    logToTelltale();
+
+    $recorder = app(JobRecorder::class);
+
+    // Auth::login(), once() and onceUsingId() leave the user on the guard, and a worker does
+    // not reset its guards between jobs.
+    $first = reservedJob();
+    $recorder->recordProcessing(new JobProcessing('redis', $first));
+    Auth::setUser(dispatchingUser(7));
+    $recorder->recordProcessed(new JobProcessed('redis', $first));
+
+    $second = reservedJob(class: 'App\\Jobs\\PruneRecordings');
+    $recorder->recordProcessing(new JobProcessing('redis', $second));
+
+    Log::info('Pruning recordings');
+    dispatch(new QueueableJob([]));
+
+    $recorder->recordProcessed(new JobProcessed('redis', $second));
+    app(Flare::class)->logger->flush();
+
+    expect(Auth::id())->toBe(7);
+    FakeApi::lastLog()->expectLog(0)->expectMissingAttribute('user.id');
+    expect(lastQueuedPayload())->not->toHaveKey(CurrentUser::PAYLOAD_KEY);
+});
+
+it('names the user a job carries on its logs and its reports, not a user it signs in', function () {
+    setupFlare(isUsingSubtasks: true);
+    logToTelltale();
+
+    $job = reservedJob(userId: 58714);
+
+    $recorder = app(JobRecorder::class);
+    $recorder->recordProcessing(new JobProcessing('redis', $job));
+
+    Auth::setUser(dispatchingUser(7));
+
+    Log::info('Signed in as the owner of the voicemail');
+    app(Flare::class)->reportHandled(new RuntimeException('Could not reach the carrier, retrying'));
+
+    $recorder->recordProcessed(new JobProcessed('redis', $job));
+    app(Flare::class)->logger->flush();
+
+    FakeApi::lastLog()->expectLog(0)->expectAttribute('user.id', 58714);
+    FakeApi::lastReport()->expectAttribute('user.id', 58714);
+});
+
+it('names nobody on the logs and reports of a job nobody dispatched, even one that signs a user in', function () {
+    setupFlare(isUsingSubtasks: true);
+    logToTelltale();
+
+    $job = reservedJob();
+
+    $recorder = app(JobRecorder::class);
+    $recorder->recordProcessing(new JobProcessing('redis', $job));
+
+    Auth::setUser(dispatchingUser(7));
+
+    Log::info('Signed in as the owner of the voicemail');
+    app(Flare::class)->reportHandled(new RuntimeException('Could not reach the carrier, retrying'));
+
+    $recorder->recordProcessed(new JobProcessed('redis', $job));
+    app(Flare::class)->logger->flush();
+
+    FakeApi::lastLog()->expectLog(0)->expectMissingAttribute('user.id');
+    FakeApi::lastReport()->expectMissingAttribute('user.id');
+});
+
+it('names nobody on the failure of a job nobody dispatched, even one that signs a user in', function () {
+    setupFlare(isUsingSubtasks: true);
+    logToTelltale();
+
+    $job = reservedJob();
+    $exception = new RuntimeException('Transcription service is down');
+
+    // What a worker does with a job that finally fails: it reports after the job has ended.
+    event(new JobProcessing('redis', $job));
+    Auth::setUser(dispatchingUser(7));
+    Log::info('Signed in as the owner of the voicemail');
+    event(new JobFailed('redis', $job, $exception));
+    event(new JobExceptionOccurred('redis', $job, $exception));
+
+    report($exception);
+
+    event(new Looping('redis', 'default'));
+    app(Flare::class)->logger->flush();
+
+    FakeApi::lastLog()->expectLog(0)->expectMissingAttribute('user.id');
+    FakeApi::lastReport()->expectMissingAttribute('user.id');
+});
+
 it('keeps the user of a job while a job inside it runs and ends', function () {
     setupFlare(isUsingSubtasks: true);
 
@@ -319,4 +428,29 @@ it('names no user on the report of a job nobody signed in dispatched', function 
     report($exception);
 
     FakeApi::lastReport()->expectMissingAttribute('user.id');
+});
+
+it('builds the recorders from the arguments they took before they followed the user', function () {
+    setupFlare();
+
+    // What a subclass that calls the parent constructor with positional arguments passes.
+    $jobRecorder = fn () => new JobRecorder(
+        app(Tracer::class),
+        app(BackTracer::class),
+        app(EntryPointResolver::class),
+        app(Lifecycle::class),
+        app('events'),
+        app(ReduceArgumentPayloadAction::class),
+        [],
+    );
+
+    $queueRecorder = fn () => new QueueRecorder(
+        app(Tracer::class),
+        app(BackTracer::class),
+        app('events'),
+        [],
+    );
+
+    expect($jobRecorder)->not->toThrow(TypeError::class);
+    expect($queueRecorder)->not->toThrow(TypeError::class);
 });

@@ -48,6 +48,8 @@ class JobRecorder extends BaseJobRecorder
     /** @var array<int, class-string<Throwable>> */
     protected array $dontReportFailed = [];
 
+    protected CurrentUser $currentUser;
+
     public function __construct(
         Tracer $tracer,
         BackTracer $backTracer,
@@ -55,9 +57,11 @@ class JobRecorder extends BaseJobRecorder
         Lifecycle $lifecycle,
         protected Dispatcher $dispatcher,
         protected ReduceArgumentPayloadAction $reduceArgumentPayloadAction,
-        protected CurrentUser $currentUser,
         array $config,
+        ?CurrentUser $currentUser = null,
     ) {
+        $this->currentUser = $currentUser ?? app(CurrentUser::class);
+
         parent::__construct($tracer, $backTracer, $entryPointResolver, $lifecycle, $config);
     }
 

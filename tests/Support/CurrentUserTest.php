@@ -94,18 +94,24 @@ it('names the user a running job carries before anyone signed in', function () {
     expect($currentUser->id())->toBe(7);
 });
 
-it('falls back to the signed-in user inside a job that carries nobody', function () {
+it('names nobody inside a job that carries nobody, whoever the guard holds', function () {
     setupFlare();
 
     $currentUser = app(CurrentUser::class);
+
+    Auth::setUser(applicationUser(7));
 
     $currentUser->enterJob(null);
 
     expect($currentUser->id())->toBeNull();
 
-    Auth::setUser(applicationUser(7));
+    Auth::setUser(applicationUser(3));
 
-    expect($currentUser->id())->toBe(7);
+    expect($currentUser->id())->toBeNull();
+
+    $currentUser->leaveJob();
+
+    expect($currentUser->id())->toBe(3);
 });
 
 it('carries only what can be an id', function (mixed $id, int|string|null $expected) {
@@ -144,6 +150,22 @@ it('remembers who signed out, for the request they signed out in', function () {
 
     expect($currentUser->id())->toBeNull();
     expect($currentUser->forRequest($next))->toBeNull();
+});
+
+it('remembers a user signed out of the current device only', function () {
+    setupFlare();
+
+    // How AuthenticateSession signs out a user whose password changed on another device.
+    $request = Request::create('https://app.test/dashboard', 'GET');
+    $request->setUserResolver(fn () => Auth::user());
+    app()->instance('request', $request);
+
+    Auth::setUser($user = applicationUser(7));
+    Auth::guard()->logoutCurrentDevice();
+
+    expect(Auth::hasUser())->toBeFalse();
+    expect(app(CurrentUser::class)->user())->toBe($user);
+    expect(app(CurrentUser::class)->forRequest($request)?->id())->toBe(7);
 });
 
 it('prefers the user a request still has over one who signed out', function () {

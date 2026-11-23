@@ -13,7 +13,8 @@ use WeakMap;
  * A request names its own user when it ends. Three places need more than that:
  *
  * - A queued job runs in a worker where nobody is signed in. The id of the user who dispatched
- *   it travels in the job's payload and is carried for as long as the job runs.
+ *   it travels in the job's payload and is carried for as long as the job runs. While a job
+ *   runs, that id is the only one used: a worker keeps whoever an earlier job signed in.
  * - A log record and a dispatched job are stamped at any moment, so the user is only read from
  *   a guard that already looked it up. Loading it here would add a query to every one of them.
  * - A request that signs the user out ends with nobody signed in. The user is remembered for
@@ -50,15 +51,17 @@ class CurrentUser
     }
 
     /**
-     * The id of the user behind what is running now: the one a running job carries, else the
-     * signed-in user, else the user who signed out during this request.
+     * The id of the user behind what is running now. Inside a job, the id the job carries, which
+     * is null for a job dispatched by nobody. Elsewhere, the signed-in user, else the user who
+     * signed out during this request.
+     *
+     * A job never falls back to the guard. A worker does not reset its guards between jobs, so
+     * the user on them may have been signed in by an earlier job.
      */
     public function id(): int|string|null
     {
-        $carried = $this->carried();
-
-        if ($carried !== null) {
-            return $carried;
+        if ($this->runningJob()) {
+            return $this->carried();
         }
 
         $user = $this->user();
@@ -106,6 +109,11 @@ class CurrentUser
         }
 
         return $this->carried[array_key_last($this->carried)];
+    }
+
+    protected function runningJob(): bool
+    {
+        return $this->carried !== [];
     }
 
     /**

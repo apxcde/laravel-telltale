@@ -16,13 +16,17 @@ use Apxcde\LaravelTelltale\Support\CurrentUser;
 
 class QueueRecorder extends BaseQueueRecorder
 {
+    protected CurrentUser $currentUser;
+
     public function __construct(
         Tracer $tracer,
         BackTracer $backTracer,
         protected Dispatcher $dispatcher,
-        protected CurrentUser $currentUser,
-        array $config
+        array $config,
+        ?CurrentUser $currentUser = null,
     ) {
+        $this->currentUser = $currentUser ?? app(CurrentUser::class);
+
         parent::__construct($tracer, $backTracer, $config);
     }
 

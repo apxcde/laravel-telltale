@@ -3,6 +3,7 @@
 namespace Apxcde\LaravelTelltale;
 
 use Closure;
+use Illuminate\Auth\Events\CurrentDeviceLogout;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Debug\ExceptionHandler;
@@ -347,9 +348,11 @@ class TelltaleServiceProvider extends ServiceProvider
         // when a runtime such as Octane hands every request its own copy of the application.
         $currentUser = $this->app->make(CurrentUser::class);
 
+        // AuthenticateSession signs the user out with logoutCurrentDevice(), which announces
+        // CurrentDeviceLogout instead of Logout.
         $this->app->make('events')->listen(
-            Logout::class,
-            fn (Logout $event) => $currentUser->rememberSignedOut($event->user),
+            [Logout::class, CurrentDeviceLogout::class],
+            fn (Logout|CurrentDeviceLogout $event) => $currentUser->rememberSignedOut($event->user),
         );
     }
 
